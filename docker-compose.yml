@@ -5,6 +5,7 @@ services:
     image: scheduler:latest
     container_name: rs485scheduler
     privileged: true
+    restart: always
     depends_on:
       - web
     environment:
@@ -17,6 +18,7 @@ services:
   web:
     image: dynamic_led_prod:latest
     container_name: dynamic_led_prod
+    restart: always
     ports:
       - "80:8000"
     depends_on:
@@ -47,6 +49,7 @@ services:
   postgres_dynamic_led_prod:
     image: postgres:latest
     container_name: dynamic_led_prod_postgres
+    restart: always
     environment:
       POSTGRES_DB: dynamic_led_prod
       POSTGRES_USER: manav1011
@@ -61,6 +64,7 @@ services:
   redis_dynamic_led_prod:
     image: redis:latest
     container_name: dynamic_led_prod_redis
+    restart: alwaysssssssssssssssssssssssssssssssssssssssssssssssssssssss
     ports:
       - "6379:6379"
     healthcheck:
