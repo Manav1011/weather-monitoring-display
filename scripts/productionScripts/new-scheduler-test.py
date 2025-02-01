@@ -95,6 +95,7 @@ async def read_and_print(websocket):
                           "SRAD": None, "BPRS": None,"RTC":None, "P12": None, "P13": None,
                           "P14": None, "P15": None, "P16": None}
         
+        
         while True:
             with open('data.txt', "r") as file:
                 for line in file:
