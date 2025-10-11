@@ -31,7 +31,7 @@ SECRET_KEY = os.environ.get('SECRET')
 DEBUG = True
 
 # add the currently connected IP address
-ALLOWED_HOSTS = ['dynamicled.prod.live','localhost',os.environ.get('INTERNAL_IP')]
+ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [    

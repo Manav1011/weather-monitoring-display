@@ -11,6 +11,24 @@ import json
 import time
 import os
 
+import platform
+import serial.tools.list_ports
+
+def detect_serial_port():
+    ports = list(serial.tools.list_ports.comports())
+    if not ports:
+        raise Exception("No serial ports found.")
+    # Optionally, filter ports by description or VID/PID if you know your device
+    print("Available serial ports:")
+    for i, port in enumerate(ports):
+        print(f"{i}: {port.device} - {port.description}")
+    # Automatically select the first port
+    selected_port = ports[0].device
+    print(f"Using serial port: {selected_port}")
+    return selected_port
+SERIAL_PORT = detect_serial_port()
+
+
 async def receive_messages(websocket):
     try:
         while True:

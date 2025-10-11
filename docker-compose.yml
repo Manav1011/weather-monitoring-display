@@ -1,55 +1,55 @@
 version: '3'
 
 services:
-  scheduler:
-    image: scheduler:latest
-    container_name: rs485scheduler
-    privileged: true
-    restart: always
-    depends_on:
-      - web
-    environment:
-      - SERIAL_PORT=/dev/ttyUSB0
-      - INTERNAL_IP=192.168.26.106
-    command: >
-      bash -c "        
-        python scheduler.py
-      "
-  web:
-    image: dynamic_led_prod:latest
-    container_name: dynamic_led_prod
-    restart: always
-    ports:
-      - "80:8000"
-    depends_on:
-      postgres_dynamic_led_prod:
-        condition: service_healthy
-      redis_dynamic_led_prod:
-        condition: service_healthy
-    environment:
-      - DJANGO_DEBUG=False
-      - DJANGO_SETTINGS_MODULE=dynamic_led_display_prod.settings
-      - SECRET=django-insecure-=f8_)lr1u-*2nk0c+_rm+5ta5(p&lqpw-fv--+p(3p*u3)=gs!
-      - INTERNAL_IP=192.168.26.106
-      - DB_NAME=dynamic_led_prod
-      - DB_USER=manav1011
-      - DB_PASS=Manav@1011
-      - DB_HOST=postgres_dynamic_led_prod
-      - DB_PORT=5432
-      - REDIS_HOST=redis_dynamic_led_prod      
-    command: >
-      bash -c "
-        python manage.py makemigrations &&
-        python manage.py migrate &&
-        python manage.py flush --noinput &&
-        python manage.py collectstatic --noinput &&         
-        daphne -b 0.0.0.0 -p 8000 dynamic_led_display_prod.asgi:application
-      "
+  # scheduler:
+  #   image: scheduler:latest
+  #   container_name: rs485scheduler
+  #   privileged: true
+  #   restart: always
+  #   depends_on:
+  #     - web
+  #   environment:
+  #     - SERIAL_PORT=/dev/ttyUSB0
+  #     - INTERNAL_IP=192.168.26.106
+  #   command: >
+  #     bash -c "        
+  #       python scheduler.py
+  #     "
+  # web:
+  #   image: dynamic_led_prod:latest
+  #   container_name: dynamic_led_prod
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     postgres_dynamic_led_prod:
+  #       condition: service_healthy
+  #     redis_dynamic_led_prod:
+  #       condition: service_healthy
+  #   environment:
+  #     - DJANGO_DEBUG=False
+  #     - DJANGO_SETTINGS_MODULE=dynamic_led_display_prod.settings
+  #     - SECRET=django-insecure-=f8_)lr1u-*2nk0c+_rm+5ta5(p&lqpw-fv--+p(3p*u3)=gs!
+  #     - INTERNAL_IP=192.168.26.106
+  #     - DB_NAME=dynamic_led_prod
+  #     - DB_USER=manav1011
+  #     - DB_PASS=Manav@1011
+  #     - DB_HOST=postgres_dynamic_led_prod
+  #     - DB_PORT=5432
+  #     - REDIS_HOST=redis_dynamic_led_prod      
+  #   command: >
+  #     bash -c "
+  #       python manage.py makemigrations &&
+  #       python manage.py migrate &&
+  #       python manage.py flush --noinput &&
+  #       python manage.py collectstatic --noinput &&         
+  #       daphne -b 0.0.0.0 -p 8000 dynamic_led_display_prod.asgi:application
+  #     "
 
   postgres_dynamic_led_prod:
     image: postgres:latest
     container_name: dynamic_led_prod_postgres
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_DB: dynamic_led_prod
       POSTGRES_USER: manav1011
@@ -64,7 +64,7 @@ services:
   redis_dynamic_led_prod:
     image: redis:latest
     container_name: dynamic_led_prod_redis
-    restart: alwaysssssssssssssssssssssssssssssssssssssssssssssssssssssss
+    restart: unless-stopped
     ports:
       - "6379:6379"
     healthcheck:

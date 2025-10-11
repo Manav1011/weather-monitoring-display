@@ -11,6 +11,25 @@ import json
 import time
 import os
 
+import platform
+import serial.tools.list_ports
+
+def detect_serial_port():
+    ports = list(serial.tools.list_ports.comports())
+    if not ports:
+        raise Exception("No serial ports found.")
+    # Optionally, filter ports by description or VID/PID if you know your device
+    print("Available serial ports:")
+    for i, port in enumerate(ports):
+        print(f"{i}: {port.device} - {port.description}")
+    # Automatically select the first port
+    selected_port = ports[0].device
+    print(f"Using serial port: {selected_port}")
+    return selected_port
+
+SERIAL_PORT = detect_serial_port()
+
+
 async def receive_messages(websocket):
     try:
         while True:
@@ -89,7 +108,7 @@ async def read_and_print(websocket):
     data_bits = 8
     parity = 'N'
     stop_bits = 1
-    aioserial_instance = aioserial.AioSerial(port=os.environ.get('SERIAL_PORT'), baudrate=baud_rate, bytesize=data_bits,parity=parity, stopbits=stop_bits, timeout=1)
+    aioserial_instance = aioserial.AioSerial(port=SERIAL_PORT, baudrate=baud_rate, bytesize=data_bits,parity=parity, stopbits=stop_bits, timeout=1)
     while True:
         dict_to_stream = {"SECOND":None,"MINUTE":None,"HOUR":None,"DAY":None,"MONTH":None,"YEAR":None,"ATMP": None,"HUMD": None, "WSPD": None, "WDIR": None,"RAIN": None,
                           "SRAD": None, "BPRS": None,"RTC":None, "P12": None, "P13": None,
