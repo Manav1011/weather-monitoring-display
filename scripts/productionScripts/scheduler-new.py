@@ -23,7 +23,7 @@ def detect_serial_port():
     for i, port in enumerate(ports):
         print(f"{i}: {port.device} - {port.description}")
     # Automatically select the first port
-    selected_port = ports[0].device
+    selected_port = ports[-1].device
     print(f"Using serial port: {selected_port}")
     return selected_port
 
@@ -121,9 +121,10 @@ async def read_and_print(websocket):
         response = await aioserial_instance.readline_async()
         if response:
             data = response.decode().strip()
-            if len(data) > 0:
+            if len(data) > 0:                
                 values_list = list(map(float, data.split(",")))
                 dict_to_stream = update_dict_with_values(dict_to_stream,values_list)
+                print(f"Decoded dictionary: {dict_to_stream}")
                 stored_list.append(dict_to_stream)
                 # print(dict_to_stream,data_count)
                 sensors_to_include = ['RTC','WSPD','WDIR','RAIN','SRAD','BPRS','HUMD','ATMP']
