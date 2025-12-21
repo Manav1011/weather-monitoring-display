@@ -18,11 +18,9 @@ def detect_serial_port():
     ports = list(serial.tools.list_ports.comports())
     if not ports:
         raise Exception("No serial ports found.")
-    # Optionally, filter ports by description or VID/PID if you know your device
     print("Available serial ports:")
     for i, port in enumerate(ports):
         print(f"{i}: {port.device} - {port.description}")
-    # Automatically select the first port
     selected_port = ports[-1].device
     print(f"Using serial port: {selected_port}")
     return selected_port
@@ -84,9 +82,9 @@ def update_dict_with_values(dict_to_stream,values_list):
     for key,value in zip(dict_to_stream,values_list):
         value = convert_to_number(value)
         if key == 'WSPD':
-            value = value/100
+            value = value / 100  # Convert cm/s to m/s
         if key == 'RAIN':
-            value = value*.25
+            value = value / 20 if value != 0 else 0  # Convert to mm, set to 0 if raw is 0
         if key == 'SRAD':
             value = (((value/4095.0)*3.3)*1000)/1.67
         dict_to_stream[key] = value
@@ -102,45 +100,83 @@ def update_dict_with_values(dict_to_stream,values_list):
 
 started = False
 async def read_and_print(websocket):    
-    stored_list = []
-    data_count = 0
-    baud_rate = 9600
-    data_bits = 8
-    parity = 'N'
-    stop_bits = 1
-    aioserial_instance = aioserial.AioSerial(port=SERIAL_PORT, baudrate=baud_rate, bytesize=data_bits,parity=parity, stopbits=stop_bits, timeout=1)
     while True:
-        dict_to_stream = {"SECOND":None,"MINUTE":None,"HOUR":None,"DAY":None,"MONTH":None,"YEAR":None,"ATMP": None,"HUMD": None, "WSPD": None, "WDIR": None,"RAIN": None,
-                          "SRAD": None, "BPRS": None,"RTC":None, "P12": None, "P13": None,
-                          "P14": None, "P15": None, "P16": None}
-        
-        dict_to_store = {"SECOND":None,"MINUTE":None,"HOUR":None,"DAY":None,"MONTH":None,"YEAR":None,"ATMP": None,"HUMD": None, "WSPD": None, "WDIR": None,"RAIN": None,
-                          "SRAD": None, "BPRS": None,"RTC":None, "P12": None, "P13": None,
-                          "P14": None, "P15": None, "P16": None}
-        
-        response = await aioserial_instance.readline_async()
-        if response:
-            data = response.decode().strip()
-            if len(data) > 0:                
-                values_list = list(map(float, data.split(",")))
-                dict_to_stream = update_dict_with_values(dict_to_stream,values_list)
-                print(f"Decoded dictionary: {dict_to_stream}")
-                stored_list.append(dict_to_stream)
-                # print(dict_to_stream,data_count)
-                sensors_to_include = ['RTC','WSPD','WDIR','RAIN','SRAD','BPRS','HUMD','ATMP']
-                filtered_dict = {key: dict_to_stream[key] for key in sensors_to_include if key in dict_to_stream}
-                await send_messages(websocket,
-                        data={'client': 'producer', 'device': 'rs485', 'action': 'stream',
-                              'frame': filtered_dict})    
-                data_count+=1                
-                if data_count == 60:                      
-                    # print(stored_list)
-                    dict_to_store = find_averages(dict_to_store=dict_to_store,stored_list=stored_list)
-                    await send_messages(websocket,
-                                data={'client': 'producer', 'device': 'rs485', 'action': 'store',
-                                    'frame': dict_to_store})                    
-                    stored_list = []
-                    data_count=0
+        try:
+            stored_list = []
+            prev_minute = None
+            baud_rate = 9600
+            data_bits = 8
+            parity = 'N'
+            stop_bits = 1
+            serial_port = detect_serial_port()
+            aioserial_instance = aioserial.AioSerial(port=serial_port, baudrate=baud_rate, bytesize=data_bits,parity=parity, stopbits=stop_bits, timeout=1)
+            while True:
+                dict_to_stream = {"SECOND":None,"MINUTE":None,"HOUR":None,"DAY":None,"MONTH":None,"YEAR":None,"ATMP": None,"HUMD": None, "WSPD": None, "WDIR": None,"RAIN": None,
+                                  "SRAD": None, "BPRS": None,"RTC":None, "P12": None, "P13": None,
+                                  "P14": None, "P15": None, "P16": None}
+                dict_to_store = {"SECOND":None,"MINUTE":None,"HOUR":None,"DAY":None,"MONTH":None,"YEAR":None,"ATMP": None,"HUMD": None, "WSPD": None, "WDIR": None,"RAIN": None,
+                                  "SRAD": None, "BPRS": None,"RTC":None, "P12": None, "P13": None,
+                                  "P14": None, "P15": None, "P16": None}
+                response = await aioserial_instance.readline_async()
+                if response:
+                    data = response.decode().strip()
+                    if len(data) > 0:
+                        values_list = list(map(float, data.split(",")))                
+                        print(f"Received data: {values_list}")
+                        dict_to_stream = update_dict_with_values(dict_to_stream,values_list)                
+                        print(f"Updated dict: {dict_to_stream}")
+                        stored_list.append(dict_to_stream)
+                        sensors_to_include = ['RTC','WSPD','WDIR','RAIN','SRAD','BPRS','HUMD','ATMP']
+                        filtered_dict = {key: dict_to_stream[key] for key in sensors_to_include if key in dict_to_stream}
+                        # Zero value formatting and data format for live values
+                        def format_value(key, value):
+                            # Replace near-zero with 0
+                            if isinstance(value, float) and abs(value) < 1e-6:
+                                value = 0.0
+                            if key == 'WSPD':
+                                return f"{value:.2f}"
+                            elif key == 'WDIR':
+                                return f"{int(round(value)):03d}"
+                            elif key in ['ATMP', 'HUMD', 'RAIN', 'BPRS']:
+                                return f"{value:.1f}"
+                            else:
+                                return value
+                        filtered_dict = {key: format_value(key, val) for key, val in filtered_dict.items()}
+                        await send_messages(websocket,
+                            data={'client': 'producer', 'device': 'rs485', 'action': 'stream',
+                                  'frame': filtered_dict})
+                        current_minute = dict_to_stream["MINUTE"]
+                        if prev_minute is not None and current_minute != prev_minute:
+                            print(f"Minute changed: {prev_minute} -> {current_minute}")
+                            # Aggregate and store for the previous minute
+                            df = pd.DataFrame(stored_list)
+                            dict_to_store["WSPD"] = float(df['WSPD'].mean())
+                            dict_to_store["RTC"] = str(df['RTC'].iloc[-1])
+                            dict_to_store["WDIR"] = float(round(circmean(df['WDIR'], high=360, low=0),3))
+                            dict_to_store["ATMP"] = float(df['ATMP'].mean())
+                            dict_to_store["RAIN"] = float(df['RAIN'].max() - df['RAIN'].min())
+                            dict_to_store["SRAD"] = float(df['SRAD'].mean())
+                            dict_to_store["BPRS"] = float(df['BPRS'].mean())
+                            dict_to_store["HUMD"] = float(df['HUMD'].mean())
+                            # Zero value formatting and data format for stored values
+                            def format_store_value(key, value):
+                                if isinstance(value, float) and abs(value) < 1e-6:
+                                    value = 0.0
+                                if key == 'WSPD':
+                                    return f"{value:.2f}"
+                                elif key == 'WDIR':
+                                    return f"{int(round(value)):03d}"
+                                elif key in ['ATMP', 'HUMD', 'RAIN', 'BPRS']:
+                                    return f"{value:.1f}"
+                                else:
+                                    return value
+                            dict_to_store = {key: format_store_value(key, val) for key, val in dict_to_store.items()}
+                            await send_messages(websocket, data={'client': 'producer', 'device': 'rs485', 'action': 'store', 'frame': dict_to_store})
+                            stored_list = []
+                        prev_minute = current_minute
+        except Exception as e:
+            print(f"Serial port error: {e}. Retrying with new port in 5 seconds...")
+            await asyncio.sleep(5)
 
 async def main():        
     while True:    
