@@ -1,4 +1,316 @@
 {% load static %}
+<style>
+  /* Professional Weather Monitoring Dashboard Styles - Crowz Theme */
+  * {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  
+  #container_rs485 .card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  
+  #container_rs485 .card-header {
+    background: #ffffff;
+    border-bottom: 1px solid #f3f4f6;
+    padding: 24px 28px;
+    border-radius: 16px 16px 0 0;
+  }
+  
+  #container_rs485 .card-header h6 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    letter-spacing: -0.5px;
+  }
+  
+  #container_rs485 .card-header h6 i {
+    color: #3b82f6;
+  }
+  
+  .metric-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #f3f4f6;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  
+  .metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-color: #e5e7eb;
+  }
+  
+  .metric-card:hover::before {
+    opacity: 1;
+  }
+  
+  .metric-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .metric-icon {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1));
+    transition: transform 0.2s ease;
+  }
+  
+  .metric-card:hover .metric-icon {
+    transform: scale(1.05);
+  }
+  
+  .metric-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex: 1;
+    line-height: 1.4;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .metric-value {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 12px 0;
+    line-height: 1;
+    transition: all 0.2s ease;
+    color: #111827;
+    letter-spacing: -1px;
+  }
+  
+  .metric-card:hover .metric-value {
+    transform: scale(1.02);
+  }
+  
+  .metric-timestamp {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin-bottom: 16px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .metric-timestamp::before {
+    content: "🕐";
+    font-size: 0.85rem;
+  }
+  
+  .metric-minmax-bar {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid #e5e7eb;
+    font-size: 0.7rem;
+    color: #6b7280;
+    margin-top: auto;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .min-label, .max-label {
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: #f3f4f6;
+    transition: all 0.2s ease;
+    color: #4b5563;
+  }
+  
+  .metric-card:hover .min-label,
+  .metric-card:hover .max-label {
+    background: #e5e7eb;
+  }
+  
+  .min-label span, .max-label span {
+    font-weight: 700;
+    color: #111827;
+    margin-left: 4px;
+  }
+  
+  /* Professional Color Schemes - Crowz Theme */
+  #card_ATMP {
+    border-top: 4px solid #3b82f6;
+    color: #3b82f6;
+  }
+  
+  #card_ATMP .metric-value {
+    color: #3b82f6;
+  }
+  
+  #card_HUMD {
+    border-top: 4px solid #f97316;
+    color: #f97316;
+  }
+  
+  #card_HUMD .metric-value {
+    color: #f97316;
+  }
+  
+  #card_WSPD {
+    border-top: 4px solid #14b8a6;
+    color: #14b8a6;
+  }
+  
+  #card_WSPD .metric-value {
+    color: #14b8a6;
+  }
+  
+  #card_WDIR {
+    border-top: 4px solid #ec4899;
+    color: #ec4899;
+  }
+  
+  #card_WDIR .metric-value {
+    color: #ec4899;
+  }
+  
+  #card_RAIN {
+    border-top: 4px solid #3b82f6;
+    color: #3b82f6;
+  }
+  
+  #card_RAIN .metric-value {
+    color: #3b82f6;
+  }
+  
+  #card_BPRS {
+    border-top: 4px solid #8b5cf6;
+    color: #8b5cf6;
+  }
+  
+  #card_BPRS .metric-value {
+    color: #8b5cf6;
+  }
+  
+  #card_SRAD {
+    border-top: 4px solid #fbbf24;
+    color: #fbbf24;
+  }
+  
+  #card_SRAD .metric-value {
+    color: #fbbf24;
+  }
+  
+  /* Chart Container Styling */
+  .rs485-body .card-body {
+    background: #ffffff;
+    padding: 28px;
+  }
+  
+  .chart-area {
+    background: #fef7f0;
+    border-radius: 12px;
+    padding: 24px;
+    min-height: 400px;
+    border: 1px solid #f3f4f6;
+  }
+  
+  /* Value Update Animation */
+  @keyframes valueUpdate {
+    0% { 
+      opacity: 0.5;
+      transform: scale(0.95);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% { 
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  .metric-value.updating {
+    animation: valueUpdate 0.5s ease;
+  }
+  
+  /* Form Input Styling - Crowz Theme */
+  .form-control, .form-select {
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    padding: 12px 16px;
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    background: #ffffff;
+  }
+  
+  .form-control:focus, .form-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    outline: none;
+  }
+  
+  .input-group-text {
+    border-radius: 10px;
+    background: #fef7f0;
+    border: 1px solid #e5e7eb;
+    color: #6b7280;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  /* Checkbox and Radio Styling */
+  .form-check-input:checked {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+  }
+  
+  .form-check-label {
+    font-weight: 500;
+    color: #374151;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+  }
+  
+  /* Range Input Styling */
+  .form-range::-webkit-slider-thumb {
+    background: #3b82f6;
+    border: none;
+  }
+  
+  .form-range::-moz-range-thumb {
+    background: #3b82f6;
+    border: none;
+  }
+</style>
 <script>
   // globals
   var resetPlottingContainer = null;
@@ -6,18 +318,14 @@
   var frameRecieved = false;
 </script>
 <div class="col-lg-12 mb-4" id="container_rs485">
-  <div class="card bg-light shadow mb-4">
-    <!-- Card Header - Dropdown -->
+  <div class="card shadow mb-4">
+    <!-- Card Header -->
     <div
-      class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+      class="card-header py-3"
     >
-      <h6 class="m-0 font-weight-bold text-primary">RS485</h6>
-      <select
-        class="form-select w-50 485_param_select d-none"
-        aria-label="parameters_select"
-        id="parameters_select_rs485"
-        oninput="parameters_select_rs485_changed(event)"
-      ></select>
+      <h6 class="m-0 font-weight-bold" style="font-family: 'Poppins', sans-serif; font-size: 1.5rem; color: #1a1a1a; letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px;">
+        <i class="fas fa-microchip" style="color: #3b82f6;"></i>RS485 Weather Station
+      </h6>
     </div>
     <!-- Card Body -->
     <div class="rs485-body">
@@ -36,18 +344,139 @@
           />
         </div>
         <div class="485_content d-none">
+          <!-- Metric Cards Section -->
+          <div class="row mb-4" id="metric_cards_container">
+            <!-- Temperature Card -->
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+              <div class="metric-card" id="card_ATMP" data-param="ATMP">
+                <div class="metric-card-header">
+                  <img src="" alt="Temperature" class="metric-icon" id="icon_ATMP">
+                  <span class="metric-label">TEMPERATURE (DegC)</span>
+                </div>
+                <div class="metric-value" id="value_ATMP">0</div>
+                <div class="metric-timestamp" id="timestamp_ATMP">--</div>
+                <div class="metric-minmax-bar">
+                  <span class="min-label">Min: <span id="min_ATMP">--</span></span>
+                  <span class="max-label">Max: <span id="max_ATMP">--</span></span>
+                </div>
+              </div>
+            </div>
+            <!-- Humidity Card -->
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+              <div class="metric-card" id="card_HUMD" data-param="HUMD">
+                <div class="metric-card-header">
+                  <img src="" alt="Humidity" class="metric-icon" id="icon_HUMD">
+                  <span class="metric-label">HUMIDITY (%)</span>
+                </div>
+                <div class="metric-value" id="value_HUMD">0</div>
+                <div class="metric-timestamp" id="timestamp_HUMD">--</div>
+                <div class="metric-minmax-bar">
+                  <span class="min-label">Min: <span id="min_HUMD">0</span></span>
+                  <span class="max-label">Max: <span id="max_HUMD">0</span></span>
+                </div>
+              </div>
+            </div>
+            <!-- Wind Speed Card -->
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+              <div class="metric-card" id="card_WSPD" data-param="WSPD">
+                <div class="metric-card-header">
+                  <img src="" alt="Wind Speed" class="metric-icon" id="icon_WSPD">
+                  <span class="metric-label">WIND SPEED (Km/h)</span>
+                </div>
+                <div class="metric-value" id="value_WSPD">0</div>
+                <div class="metric-timestamp" id="timestamp_WSPD">--</div>
+                <div class="metric-minmax-bar">
+                  <span class="min-label">Min: <span id="min_WSPD">0</span></span>
+                  <span class="max-label">Max: <span id="max_WSPD">0</span></span>
+                </div>
+              </div>
+            </div>
+            <!-- Wind Direction Card -->
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+              <div class="metric-card" id="card_WDIR" data-param="WDIR">
+                <div class="metric-card-header">
+                  <img src="" alt="Wind Direction" class="metric-icon" id="icon_WDIR">
+                  <span class="metric-label">WIND DIR (Deg)</span>
+                </div>
+                <div class="metric-value" id="value_WDIR">0</div>
+                <div class="metric-timestamp" id="timestamp_WDIR">--</div>
+                <div class="metric-minmax-bar">
+                  <span class="min-label">Min: <span id="min_WDIR">0</span></span>
+                  <span class="max-label">Max: <span id="max_WDIR">0</span></span>
+                </div>
+              </div>
+            </div>
+            <!-- Rain Card -->
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+              <div class="metric-card" id="card_RAIN" data-param="RAIN">
+                <div class="metric-card-header">
+                  <img src="" alt="Rain" class="metric-icon" id="icon_RAIN">
+                  <span class="metric-label">RAIN (mm)</span>
+                </div>
+                <div class="metric-value" id="value_RAIN">0</div>
+                <div class="metric-timestamp" id="timestamp_RAIN">--</div>
+                <div class="metric-minmax-bar">
+                  <span class="min-label">Min: <span id="min_RAIN">0</span></span>
+                  <span class="max-label">Max: <span id="max_RAIN">0</span></span>
+                </div>
+              </div>
+            </div>
+            <!-- Barometric Pressure Card -->
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+              <div class="metric-card" id="card_BPRS" data-param="BPRS">
+                <div class="metric-card-header">
+                  <img src="" alt="Barometric Pressure" class="metric-icon" id="icon_BPRS">
+                  <span class="metric-label">BP (mBar)</span>
+                </div>
+                <div class="metric-value" id="value_BPRS">0</div>
+                <div class="metric-timestamp" id="timestamp_BPRS">--</div>
+                <div class="metric-minmax-bar">
+                  <span class="min-label">Min: <span id="min_BPRS">0</span></span>
+                  <span class="max-label">Max: <span id="max_BPRS">0</span></span>
+                </div>
+              </div>
+            </div>
+            <!-- Solar Radiation Card -->
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+              <div class="metric-card" id="card_SRAD" data-param="SRAD">
+                <div class="metric-card-header">
+                  <img src="" alt="Solar Radiation" class="metric-icon" id="icon_SRAD">
+                  <span class="metric-label">SOLAR RAD (pm²)</span>
+                </div>
+                <div class="metric-value" id="value_SRAD">0</div>
+                <div class="metric-timestamp" id="timestamp_SRAD">--</div>
+                <div class="metric-minmax-bar">
+                  <span class="min-label">Min: <span id="min_SRAD">0</span></span>
+                  <span class="max-label">Max: <span id="max_SRAD">0</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
           <div class="row">
             <div class="col-lg-12 mb-4">
-              <div class="card bg-light shadow mb-4">
-                <!-- Card Header - Dropdown -->
+              <div class="card shadow mb-4">
+                <!-- Card Header -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold" style="font-family: 'Poppins', sans-serif; font-size: 1.5rem; color: #1a1a1a; letter-spacing: -0.5px;">
+                    <i class="fas fa-chart-line mr-2" style="color: #3b82f6;"></i>Live Data Chart
+                  </h6>
+                  <select
+                    class="form-select 485_param_select d-none"
+                    aria-label="parameters_select"
+                    id="parameters_select_rs485_live"
+                    oninput="parameters_select_rs485_changed(event)"
+                    style="max-width: 250px; border-radius: 10px; border: 1px solid #e5e7eb; padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 0.875rem; transition: all 0.2s ease;"
+                    onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'"
+                    onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'"
+                  ></select>
+                </div>
+                <!-- Card Body -->
                 <div class="card-body">
-                  <div
-                    class="chart-area d-flex"
-                    style="justify-content: center; align-items: center"
-                  >
+                  <div class="chart-area d-flex" style="justify-content: center; align-items: center; min-height: 400px;">
                     <canvas
                       id="rs485live_data"
-                      style="width: 100%; height: auto"
+                      style="width: 100%; height: auto; max-height: 500px;"
                     ></canvas>
                   </div>
                 </div>
@@ -64,8 +493,12 @@
                 });
               </script>
               <div class="card-header text-center py-3 d-flex flex-row align-items-center justify-content-between">
-                <div class="card border-secondary mb-3 w-100">
-                  <div class="card-header">Charts</div>
+                <div class="card shadow mb-3 w-100" style="background: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb;">
+                  <div class="card-header" style="background: #ffffff; border-bottom: 1px solid #e5e7eb; border-radius: 12px 12px 0 0;">
+                    <h6 class="m-0 font-weight-bold" style="font-family: 'Poppins', sans-serif; font-size: 1.25rem; color: #1a1a1a; letter-spacing: -0.4px;">
+                      <i class="fas fa-chart-bar mr-2" style="color: #3b82f6;"></i>Chart Options
+                    </h6>
+                  </div>
                   <div class="card-body text-secondary">
                     <div
                       class="btn-group row w-100"
@@ -123,32 +556,47 @@
                         </script>
                         <button
                           type="button"
-                          class="col-3 btn btn-outline-dark"
+                          class="col-3 btn btn-outline-primary"
                           data-toggle="collapse"
                           data-target="#windrosecollapse"
                           aria-expanded="false"
                           aria-controls="windrosecollapse"
-                        >Windrose</button>
+                          style="border-radius: 10px; font-weight: 600; margin: 6px; border-color: #3b82f6; color: #3b82f6; font-family: 'Inter', sans-serif; transition: all 0.2s ease; background: #ffffff;"
+                          onmouseover="this.style.background='#eff6ff'; this.style.borderColor='#2563eb'; this.style.color='#2563eb'"
+                          onmouseout="this.style.background='#ffffff'; this.style.borderColor='#3b82f6'; this.style.color='#3b82f6'"
+                        ><i class="fas fa-compass mr-2"></i>Windrose</button>
                         <button
                           type="button"
-                          class="col-3 btn btn-outline-dark"
+                          class="col-3 btn btn-outline-primary"
                           data-toggle="collapse"
                           data-target="#linecollapse"
                           aria-expanded="false"
                           aria-controls="linecollapse"
-                        >Line</button>
+                          style="border-radius: 10px; font-weight: 600; margin: 6px; border-color: #3b82f6; color: #3b82f6; font-family: 'Inter', sans-serif; transition: all 0.2s ease; background: #ffffff;"
+                          onmouseover="this.style.background='#eff6ff'; this.style.borderColor='#2563eb'; this.style.color='#2563eb'"
+                          onmouseout="this.style.background='#ffffff'; this.style.borderColor='#3b82f6'; this.style.color='#3b82f6'"
+                        ><i class="fas fa-chart-line mr-2"></i>Line</button>
                         <button
                           type="button"
-                          class="col-3 btn btn-outline-dark"
+                          class="col-3 btn btn-outline-primary"
                           data-toggle="collapse"
                           data-target="#areacollapse"
                           aria-expanded="false"
                           aria-controls="areacollapse"
-                        >Area</button>
+                          style="border-radius: 10px; font-weight: 600; margin: 6px; border-color: #3b82f6; color: #3b82f6; font-family: 'Inter', sans-serif; transition: all 0.2s ease; background: #ffffff;"
+                          onmouseover="this.style.background='#eff6ff'; this.style.borderColor='#2563eb'; this.style.color='#2563eb'"
+                          onmouseout="this.style.background='#ffffff'; this.style.borderColor='#3b82f6'; this.style.color='#3b82f6'"
+                        ><i class="fas fa-chart-area mr-2"></i>Area</button>
                       </div>
                     </div>
                   </div>
-                  <div class="card-footer text-muted btn border-primary" onclick="resetPlottingContainer()">Reset</div>
+                  <div class="card-footer text-muted" style="background: #fef7f0; border-top: 1px solid #f3f4f6; border-radius: 0 0 16px 16px;">
+                    <button class="btn btn-outline-primary w-100" onclick="resetPlottingContainer()" style="border-radius: 10px; font-weight: 600; border-color: #3b82f6; color: #3b82f6; font-family: 'Inter', sans-serif; transition: all 0.2s ease; background: #ffffff;"
+                    onmouseover="this.style.background='#eff6ff'; this.style.borderColor='#2563eb'; this.style.color='#2563eb'"
+                    onmouseout="this.style.background='#ffffff'; this.style.borderColor='#3b82f6'; this.style.color='#3b82f6'">
+                      <i class="fas fa-redo mr-2"></i>Reset Chart Options
+                    </button>
+                  </div>
                 </div>
               </div>
               <!-- Collapses -->
@@ -242,10 +690,12 @@
                   
                 </div>
                 <button
-                  class="btn btn-outline-dark d-block w-100"
+                  class="btn btn-primary d-block w-100"
                   onclick="get_the_area_chart()"
+                  style="border-radius: 10px; font-weight: 600; padding: 14px; background: #14b8a6; border: none; color: white; font-family: 'Inter', sans-serif; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"
+                  onmouseover="this.style.background='#0d9488'; this.style.boxShadow='0 2px 6px rgba(0,0,0,0.15)'" onmouseout="this.style.background='#14b8a6'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'"
                 >
-                  Get The Chart
+                  <i class="fas fa-chart-area mr-2"></i>Generate Area Chart
                 </button>
               </div>
             </div>
@@ -371,10 +821,12 @@
                       </div>
                     </div>
                     <button
-                      class="btn btn-outline-dark d-block w-100"
+                      class="btn btn-primary d-block w-100"
                       onclick="get_the_line_chart()"
+                      style="border-radius: 10px; font-weight: 600; padding: 14px; background: #14b8a6; border: none; color: white; font-family: 'Inter', sans-serif; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"
+                      onmouseover="this.style.background='#0d9488'; this.style.boxShadow='0 2px 6px rgba(0,0,0,0.15)'" onmouseout="this.style.background='#14b8a6'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'"
                     >
-                      Get The Chart
+                      <i class="fas fa-chart-line mr-2"></i>Generate Line Chart
                     </button>
                     <script>
                       async function line_chart_checkboxes(el) {
@@ -500,8 +952,9 @@
                       </div>
                       <div class="mb-3" id="wind_range_el_container"></div>
                       <div class="mb-3 d-none" id="get_windrose_button">
-                        <button type="submit" class="btn btn-primary w-100">
-                          Get Windrose
+                        <button type="submit" class="btn btn-primary w-100" style="border-radius: 10px; font-weight: 600; padding: 14px; background: #14b8a6; border: none; color: white; font-family: 'Inter', sans-serif; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"
+                        onmouseover="this.style.background='#0d9488'; this.style.boxShadow='0 2px 6px rgba(0,0,0,0.15)'" onmouseout="this.style.background='#14b8a6'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'">
+                          <i class="fas fa-compass mr-2"></i>Generate Windrose Chart
                         </button>
                       </div>
                     </form>
@@ -516,19 +969,24 @@
 
             <div class="col-xl-12 col-lg-12">
               <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
+                <!-- Card Header -->
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    <i class="fas fa-chart-area mr-2"></i>Historical Data Analysis
+                  </h6>
+                </div>
                 <!-- Card Body -->
                 <div class="card-body">
                   <div
                     class="chart-area d-flex"
-                    style="justify-content: center; align-items: center"
+                    style="justify-content: center; align-items: center; min-height: 300px;"
                     id="chart_container_rs485"
                   >
                     <img
                       src='{% static "img/pie_chart.png" %}'
                       alt=""
                       id="no_plot_svg"
-                      style="width: auto; height: 100%"
+                      style="width: auto; height: 100%; border-radius: 10px;"
                     />
                   </div>
                 </div>
@@ -536,20 +994,24 @@
             </div>
             <div class="col-xl-12 col-lg-12">
               <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-
+                <!-- Card Header -->
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    <i class="fas fa-table mr-2"></i>Data Statistics
+                  </h6>
+                </div>
                 <!-- Card Body -->
                 <div class="card-body">
                   <div
                     class="chart-area d-flex"
-                    style="justify-content: center; overflow: scroll"
+                    style="justify-content: center; overflow: scroll; min-height: 300px;"
                     id="stats_df_container_rs485"
                   >
                     <img
                       src='{% static "img/pie_chart.png" %}'
                       alt=""
                       id="no_plot_svg"
-                      style="width: auto; height: 100%"
+                      style="width: auto; height: 100%; border-radius: 10px;"
                     />
                   </div>
                 </div>
@@ -622,22 +1084,139 @@
     P15: ["Parameter 15", `${window.location.origin}/media/icons/default.png`],
     P16: ["Parameter 16", `${window.location.origin}/media/icons/default.png`],
   };
+  
+  // Initialize metric card icons after weatherData is defined
+  initializeMetricCardIcons();
+  
   var min_max = {
-    WSPD: [0, 0],
-    WDIR: [0, 0],
-    ATMP: [0, 0],
-    HUMD: [0, 0],
-    RAIN: [0, 0],
-    SRAD: [0, 0],
-    BPRS: [0, 0],
-    WDCH: [0, 0],
-    DWPT: [0, 0],
-    P12: [0, 0],
-    P13: [0, 0],
-    P14: [0, 0],
-    P15: [0, 0],
-    P16: [0, 0],
+    WSPD: [null, null],
+    WDIR: [null, null],
+    ATMP: [null, null],
+    HUMD: [null, null],
+    RAIN: [null, null],
+    SRAD: [null, null],
+    BPRS: [null, null],
+    WDCH: [null, null],
+    DWPT: [null, null],
+    P12: [null, null],
+    P13: [null, null],
+    P14: [null, null],
+    P15: [null, null],
+    P16: [null, null],
   };
+  
+  // Initialize metric card icons
+  function initializeMetricCardIcons() {
+    const params = ['ATMP', 'HUMD', 'WSPD', 'WDIR', 'RAIN', 'BPRS', 'SRAD'];
+    params.forEach(param => {
+      if (weatherData[param] && weatherData[param][1]) {
+        const iconElement = document.getElementById(`icon_${param}`);
+        if (iconElement) {
+          iconElement.src = weatherData[param][1];
+        }
+      }
+    });
+  }
+  
+  // Function to update metric cards
+  function updateMetricCards(frame) {
+    let currentTime = new Date();
+    let timestamp = currentTime.toISOString().slice(0, 19).replace('T', ' ');
+    
+    for (let param in frame) {
+      if (param === 'RTC') {
+        // Use RTC from frame if available, otherwise use current time
+        try {
+          let rtcDate = new Date(frame[param]);
+          timestamp = rtcDate.toISOString().slice(0, 19).replace('T', ' ');
+        } catch(e) {
+          // Use current time if RTC parsing fails
+        }
+        continue;
+      }
+      
+      if (!weatherData[param]) continue;
+      
+      let value = parseFloat(frame[param]);
+      if (isNaN(value)) continue;
+      
+      // Update min/max tracking
+      if (min_max[param][0] === null || value < min_max[param][0]) {
+        min_max[param][0] = value;
+      }
+      if (min_max[param][1] === null || value > min_max[param][1]) {
+        min_max[param][1] = value;
+      }
+      
+      // Update card display
+      let valueElement = document.getElementById(`value_${param}`);
+      let timestampElement = document.getElementById(`timestamp_${param}`);
+      let minElement = document.getElementById(`min_${param}`);
+      let maxElement = document.getElementById(`max_${param}`);
+      
+      if (valueElement) {
+        // Format value based on parameter type
+        let displayValue = value;
+        if (param === 'WSPD') {
+          displayValue = value.toFixed(2);
+        } else if (param === 'WDIR') {
+          displayValue = Math.round(value);
+        } else if (['ATMP', 'HUMD', 'RAIN', 'BPRS'].includes(param)) {
+          displayValue = value.toFixed(1);
+        } else {
+          displayValue = value.toFixed(2);
+        }
+        
+        // Add update animation
+        valueElement.classList.add('updating');
+        setTimeout(() => {
+          valueElement.classList.remove('updating');
+        }, 500);
+        
+        valueElement.textContent = displayValue;
+      }
+      
+      if (timestampElement) {
+        timestampElement.textContent = timestamp;
+      }
+      
+      if (minElement) {
+        if (min_max[param][0] !== null) {
+          let minDisplay = min_max[param][0];
+          if (param === 'WSPD') {
+            minDisplay = min_max[param][0].toFixed(2);
+          } else if (param === 'WDIR') {
+            minDisplay = Math.round(min_max[param][0]);
+          } else if (['ATMP', 'HUMD', 'RAIN', 'BPRS'].includes(param)) {
+            minDisplay = min_max[param][0].toFixed(1);
+          } else {
+            minDisplay = min_max[param][0].toFixed(2);
+          }
+          minElement.textContent = minDisplay;
+        } else {
+          minElement.textContent = '--';
+        }
+      }
+      
+      if (maxElement) {
+        if (min_max[param][1] !== null) {
+          let maxDisplay = min_max[param][1];
+          if (param === 'WSPD') {
+            maxDisplay = min_max[param][1].toFixed(2);
+          } else if (param === 'WDIR') {
+            maxDisplay = Math.round(min_max[param][1]);
+          } else if (['ATMP', 'HUMD', 'RAIN', 'BPRS'].includes(param)) {
+            maxDisplay = min_max[param][1].toFixed(1);
+          } else {
+            maxDisplay = min_max[param][1].toFixed(2);
+          }
+          maxElement.textContent = maxDisplay;
+        } else {
+          maxElement.textContent = '--';
+        }
+      }
+    }
+  }
   var rs485_live_chart = null;
   var currently_showring_chart = null;
   var current_rs485_frame = null;
@@ -814,22 +1393,35 @@
           received_msg.frame &&
           received_msg.device
         ) {
-          $(".485_param_select").removeClass("d-none");
+          $("#parameters_select_rs485_live").removeClass("d-none");
           $(".485_content").removeClass("d-none");
           $(".404_gif").addClass("d-none");
           let rs485_container = $(`#container_${received_msg.device}`);
           rs485_container.removeClass("d-none");
+          
+          // Update metric cards with live data
+          updateMetricCards(received_msg.frame);
+          
           await make_live_rs485_chart(received_msg.frame);
           if(!frameRecieved){
             await populate_param_select_rs485(received_msg.frame);
             frameRecieved = true
           }
-          if (!$("#connection_label").text().includes("RS485 |")) {
-            if ($("#connection_label").text() == "None") {
-              $("#connection_label").text("RS485 | ");
+          // Update connection status
+          const statusIndicator = document.getElementById('status_indicator');
+          if (statusIndicator) {
+            statusIndicator.classList.remove('disconnected');
+            statusIndicator.classList.add('connected');
+          }
+          
+          if (!$("#connection_label").text().includes("RS485")) {
+            let currentText = $("#connection_label").text();
+            if (currentText == "No Device Connected" || currentText == "None") {
+              $("#connection_label").text("RS485 Connected");
             } else {
-              $("#connection_label").append("RS485 | ");
+              $("#connection_label").text(currentText + " | RS485");
             }
+            $("#connection_label").css('color', '#10b981');
           }
         }
         if ( received_msg.action == "graph_received" && received_msg.device && received_msg.image_base64 && received_msg.df_html ) {
@@ -868,14 +1460,14 @@
     if (
       JSON.stringify(current_rs485_frame) != JSON.stringify(Object.keys(frame))
     ) {
-      let select_element_rs485 = $("#parameters_select_rs485");
-      select_element_rs485.html("");
+      let select_element_rs485_live = $("#parameters_select_rs485_live");
+      select_element_rs485_live.html("");
       // let option_el = $(`<option value='all' selected>All Params</option>`);
-      // select_element_rs485.append(option_el);
+      // select_element_rs485_live.append(option_el);
       for (i in frame) {
         if (i != "RTC") {
           let option_el = $(`<option value='${i}'>${i}</option>`);
-          select_element_rs485.append(option_el);
+          select_element_rs485_live.append(option_el);
         }
       }
       current_rs485_frame = Object.keys(frame);
@@ -962,6 +1554,7 @@
   }
   async function parameters_select_rs485_changed(event) {
     currently_showring_chart = event.target.value;
+    
     $("#currently_showing_header_rs485").text(
       weatherData[currently_showring_chart][0]
     );
@@ -976,3 +1569,4 @@
     };
   }
 </script>
+

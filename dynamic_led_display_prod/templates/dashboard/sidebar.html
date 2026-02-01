@@ -1,4 +1,116 @@
 {% load static %}
+<style>
+  /* Sidebar Styling - Crowz Theme */
+  #accordionSidebar {
+    background: #ffffff !important;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03);
+    border-right: 1px solid #f3f4f6;
+  }
+  
+  * {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  
+  #accordionSidebar .sidebar-brand {
+    background: #ffffff;
+    padding: 24px 10px;
+    margin-bottom: 16px;
+    border-radius: 0;
+    margin-left: 0;
+    margin-right: 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  #accordionSidebar .sidebar-brand-icon img {
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1));
+  }
+  
+  #accordionSidebar hr.sidebar-divider {
+    border-top: 1px solid #e5e7eb !important;
+    margin: 16px 20px;
+  }
+  
+  #accordionSidebar .sidebar-heading {
+    color: #9ca3af !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    letter-spacing: 0.5px;
+    padding: 12px 20px;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  #accordionSidebar .nav-item .nav-link {
+    color: #4b5563 !important;
+    border-radius: 8px;
+    margin: 4px 12px;
+    padding: 12px 16px !important;
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  #accordionSidebar .nav-item .nav-link i {
+    color: #6b7280 !important;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+  }
+  
+  #accordionSidebar .nav-item .nav-link span {
+    color: #4b5563 !important;
+    font-weight: 500;
+    font-size: 0.75rem;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  #accordionSidebar .nav-item .nav-link:hover {
+    background: #f3f4f6 !important;
+    color: #111827 !important;
+    transform: translateX(2px);
+  }
+  
+  #accordionSidebar .nav-item .nav-link:hover i {
+    color: #3b82f6 !important;
+  }
+  
+  #accordionSidebar .nav-item .nav-link:hover span {
+    color: #111827 !important;
+    font-weight: 600;
+  }
+  
+  #accordionSidebar .nav-item.active .nav-link {
+    background: #fef3c7 !important;
+    color: #111827 !important;
+    font-weight: 600;
+    border-left: 3px solid #f97316;
+  }
+  
+  #accordionSidebar .nav-item.active .nav-link i {
+    color: #f97316 !important;
+  }
+  
+  #accordionSidebar .nav-item.active .nav-link span {
+    color: #111827 !important;
+    font-weight: 600;
+  }
+  
+  #accordionSidebar #sidebarToggle {
+    background-color: #f3f4f6 !important;
+    border: 1px solid #e5e7eb;
+    width: 36px;
+    height: 36px;
+    transition: all 0.2s ease;
+  }
+  
+  #accordionSidebar #sidebarToggle:hover {
+    background-color: #e5e7eb !important;
+    transform: scale(1.05);
+  }
+  
+  #accordionSidebar #sidebarToggle::after {
+    color: #6b7280 !important;
+    font-weight: 600;
+  }
+</style>
 <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar" style="position: sticky; height:100%; top:0;">
 
     <!-- Sidebar - Brand -->
