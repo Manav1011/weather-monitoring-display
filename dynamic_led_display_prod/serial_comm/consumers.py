@@ -52,13 +52,20 @@ class SerialConsumer(AsyncWebsocketConsumer):
                 print(SerialConsumer.entities) 
 
             if action == 'get_windrose':
-                values = text_data['values']
-                colors = text_data['colors']
-                daterange = text_data['daterange']                
+                values = text_data.get('values', False)
+                colors = text_data.get('colors', False)
+                daterange = text_data.get('daterange', None)
+                
+                if daterange is None:
+                    # Default to last 24 hours
+                    end_time = datetime.datetime.now()
+                    start_time = end_time - datetime.timedelta(days=1)
+                    daterange = [start_time.timestamp() * 1000, end_time.timestamp() * 1000]
+                
                 result = await self.get_windrose(device,values,colors,daterange)
                 if result:                
                     await self.send(json.dumps({
-                        'action':'graph_received',
+                        'action':'windrose_received',
                         'device':'rs485',
                         'image_base64':result[0],
                         'df_html':result[1],
@@ -66,13 +73,18 @@ class SerialConsumer(AsyncWebsocketConsumer):
                     }))
                 else:
                     await self.send(json.dumps({
-                        'action':'no_data',
+                        'action':'no_windrose_data',
                         'device':'rs485',                        
                     }))
                 
             if action == 'get_line_chart':
-                params = text_data['params']
-                daterange = text_data['daterange']
+                params = text_data.get('params', ['ATMP'])
+                daterange = text_data.get('daterange', None)
+                if daterange is None:
+                    end_time = datetime.datetime.now()
+                    start_time = end_time - datetime.timedelta(days=1)
+                    daterange = [start_time.timestamp() * 1000, end_time.timestamp() * 1000]
+
                 result = await self.get_line_chart(device,params,daterange)
                 if result:                
                     await self.send(json.dumps({
@@ -88,8 +100,13 @@ class SerialConsumer(AsyncWebsocketConsumer):
                         'device':'rs485',                        
                     }))
             if action == 'get_area_chart':
-                value = text_data['value']
-                daterange = text_data['daterange']
+                value = text_data.get('value', 'ATMP')
+                daterange = text_data.get('daterange', None)
+                if daterange is None:
+                    end_time = datetime.datetime.now()
+                    start_time = end_time - datetime.timedelta(days=1)
+                    daterange = [start_time.timestamp() * 1000, end_time.timestamp() * 1000]
+
                 result = await self.get_area_chart(device,value,daterange)
                 if result:                
                     await self.send(json.dumps({
@@ -209,7 +226,9 @@ class SerialConsumer(AsyncWebsocketConsumer):
             del df_params['RTC']     
             FLOAT_DF = df_params.apply(pd.to_numeric,errors='coerce', downcast='float').round(3)
             summary_df = FLOAT_DF.describe().applymap(lambda x: f'{x:.2f}')
-            table_csv = summary_df.to_csv()
+            summary_csv = summary_df.to_csv()
+            raw_csv = pd.DataFrame(line_chart_objs).to_csv(index=False)
+            table_csv = f"--- ANALYSIS SUMMARY ---\n{summary_csv}\n\n--- RAW DATA ---\n{raw_csv}"
             table_html = summary_df.to_html(classes='table table-bordered table-striped text-center', escape=False, index=True,justify='center').replace('\n','')
             title_html = f'<div class="alert alert-primary" role="alert">FROM {start_date.strftime("%Y-%m-%d %H:%M:%S")} TO {end_date.strftime("%Y-%m-%d %H:%M:%S")}</div>'            
             table_html = title_html + table_html
@@ -243,7 +262,9 @@ class SerialConsumer(AsyncWebsocketConsumer):
             # del df_params['RTC']     
             FLOAT_DF = df_params[value].apply(pd.to_numeric,errors='coerce', downcast='float').round(3)
             summary_df = pd.DataFrame(FLOAT_DF).describe().applymap(lambda x: f'{x:.2f}')       
-            table_csv = summary_df.to_csv()
+            summary_csv = summary_df.to_csv()
+            raw_csv = pd.DataFrame(line_chart_objs).to_csv(index=False)
+            table_csv = f"--- ANALYSIS SUMMARY ---\n{summary_csv}\n\n--- RAW DATA ---\n{raw_csv}"
             table_html = summary_df.to_html(classes='table table-bordered table-striped text-center', escape=False, index=True,justify='center').replace('\n','')
             title_html = f'<div class="alert alert-primary" role="alert">FROM {start_date.strftime("%Y-%m-%d %H:%M:%S")} TO {end_date.strftime("%Y-%m-%d %H:%M:%S")}</div>'            
             table_html = title_html + table_html

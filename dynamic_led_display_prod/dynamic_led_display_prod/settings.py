@@ -72,7 +72,10 @@ ROOT_URLCONF = 'dynamic_led_display_prod.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR / 'templates')],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+            os.path.join(BASE_DIR, 'frontend_build')
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -186,7 +189,7 @@ USE_I18N = True
 CORS_ALLOW_ALL_ORIGINS=True
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://9f77-2409-40c1-10bc-48eb-aad9-3b76-7628-bcf1.ngrok-free.app","https://dynamicled.prod.live",
+    "http://9f77-2409-40c1-10bc-48eb-aad9-3b76-7628-bcf1.ngrok-free.app","https://dynamicled.prod.live","http://localhost:5173"
 ]
 
 CORS_ALLOW_METHODS = [
@@ -219,6 +222,7 @@ STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "frontend_build"),
 ]
 
 STATIC_ROOT = 'staticfiles/'

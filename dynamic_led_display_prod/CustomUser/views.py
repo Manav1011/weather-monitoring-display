@@ -5,23 +5,48 @@ from django.contrib.auth import get_user_model
 
 # Create your views here.
 
-def LoginView(request):
-    try:               
-        if request.user.is_authenticated:
-            return redirect('analytics')
-        else:            
-            if request.method == 'POST':            
-                user = authenticate(username=request.POST['email'],password=request.POST['password'])
-                if user:
-                    login(request, user)                    
-                    return redirect('analytics')
-                else:
-                    messages.error(request,"User does not exist")
-    except Exception as e:
-        print(e)
-        messages.error(request,str(e))
+from django.http import JsonResponse
+import json
+from django.views.decorators.csrf import ensure_csrf_cookie
 
-    return render(request,'auth/login.html')
+@ensure_csrf_cookie
+def LoginView(request):
+    if request.method == 'POST':
+        try:
+            if request.content_type == 'application/json':
+                data = json.loads(request.body)
+                email = data.get('email')
+                password = data.get('password')
+            else:
+                email = request.POST.get('email')
+                password = request.POST.get('password')
+
+            user = authenticate(username=email, password=password)
+            if user:
+                login(request, user)
+                if request.content_type == 'application/json':
+                    return JsonResponse({'status': 'success', 'user': {'email': user.email}})
+                return redirect('analytics')
+            else:
+                if request.content_type == 'application/json':
+                    return JsonResponse({'status': 'error', 'message': 'Invalid credentials'}, status=401)
+                messages.error(request, "User does not exist")
+        except Exception as e:
+            if request.content_type == 'application/json':
+                return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+            messages.error(request, str(e))
+
+    if request.content_type == 'application/json':
+        return JsonResponse({'status': 'error', 'message': 'GET method not allowed for login via API'}, status=405)
+    return render(request, 'auth/login.html')
+
+def CheckSessionView(request):
+    if request.user.is_authenticated:
+        return JsonResponse({
+            'isAuthenticated': True,
+            'user': {'email': request.user.email}
+        })
+    return JsonResponse({'isAuthenticated': False}, status=401)
 
 
 def RegisterView(request):

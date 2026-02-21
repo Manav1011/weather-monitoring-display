@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include,re_path
 from . import views
+from django.views.generic import TemplateView
 from django.conf.urls.static import static
 from django.conf import settings
 from django.views.static import serve
@@ -27,7 +28,6 @@ from serial_comm.views import set_yesterday_average
 import multiprocessing
 
 urlpatterns = [
-    path('',views.analytics,name='analytics'),    
     path('admin/', admin.site.urls,name='admin'),
     path('auth/',include('CustomUser.urls')) ,
     path('consumer/',views.consumer,name='consumer'),
@@ -35,6 +35,9 @@ urlpatterns = [
     path('set_yesterday_average/',set_yesterday_average,name='set_yesterday_average'),
     re_path(r"^media/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT}),
     re_path(r"^static/(?P<path>.*)$", serve, {"document_root": settings.STATIC_ROOT}),
+    # Serve React App
+    path('', TemplateView.as_view(template_name='index.html'), name='index'),
+    re_path(r'^.*$', TemplateView.as_view(template_name='index.html')),
 ]
 
 
