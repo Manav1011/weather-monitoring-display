@@ -1,6 +1,12 @@
 from django.db import models
 
 # Create your models here.
+class Station(models.Model):
+    station_id = models.CharField(max_length=100, default="RS485-PROD-01")
+    station_name = models.CharField(max_length=255, default="Default Station")
+
+    def __str__(self):
+        return f"{self.station_id} - {self.station_name}"
 
 class SerialCommunication(models.Model):
     RTC = models.DateTimeField()

@@ -1,11 +1,10 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useWeatherStore } from '../store/useWeatherStore';
-import type { WebSocketMessage } from '../types/weather';
 
 export const useWeatherSocket = () => {
     const socketRef = useRef<WebSocket | null>(null);
     const isClosingRef = useRef(false);
-    const { setCurrentFrame, setAverages, setConnected } = useWeatherStore();
+    const { setCurrentFrame, setAverages, setConnected, initMinMax } = useWeatherStore();
 
     const connect = useCallback(() => {
         if (socketRef.current?.readyState === WebSocket.OPEN ||
@@ -32,7 +31,11 @@ export const useWeatherSocket = () => {
         };
 
         socket.onmessage = (event) => {
-            const data: WebSocketMessage = JSON.parse(event.data);
+            const data: any = JSON.parse(event.data);
+
+            if (data.action === 'initial_min_max' && data.minMax) {
+                initMinMax(data.minMax);
+            }
 
             if (data.action === 'stream' && data.frame) {
                 setCurrentFrame(data.frame);
@@ -62,7 +65,7 @@ export const useWeatherSocket = () => {
         socket.onerror = (error) => {
             console.error('WebSocket Error:', error);
         };
-    }, [setCurrentFrame, setAverages, setConnected]);
+    }, [setCurrentFrame, setAverages, setConnected, initMinMax]);
 
     useEffect(() => {
         connect();

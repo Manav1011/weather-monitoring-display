@@ -16,9 +16,14 @@ const WindroseAnalytics: React.FC<WindroseAnalyticsProps> = ({ onApply }) => {
   const [endDate, setEndDate] = useState('');
 
   // Windrose State (Dynamic Bins)
+  // IMD Cyclonic Wind Speed Classifications (km/h)
   const [windroseBins, setWindroseBins] = useState<WindroseBin[]>([
-    { min: 0, max: 10, color: '#3b82f6' },
-    { min: 10, max: 20, color: '#14b8a6' },
+    { min: 0, max: 31, color: '#3b82f6' },     // Normal / Low Pressure
+    { min: 31, max: 50, color: '#10b981' },    // Depression
+    { min: 50, max: 61, color: '#f59e0b' },    // Deep Depression
+    { min: 61, max: 88, color: '#f97316' },    // Cyclonic Storm
+    { min: 88, max: 117, color: '#ef4444' },   // Severe Cyclonic Storm
+    { min: 117, max: 222, color: '#7f1d1d' },  // Very Severe / Super Cyclonic
   ]);
 
   const handleAddBin = () => {

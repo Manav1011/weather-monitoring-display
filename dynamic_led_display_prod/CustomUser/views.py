@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 import json
 from django.views.decorators.csrf import ensure_csrf_cookie
+from serial_comm.models import Station
 
 @ensure_csrf_cookie
 def LoginView(request):
@@ -25,7 +26,7 @@ def LoginView(request):
             if user:
                 login(request, user)
                 if request.content_type == 'application/json':
-                    return JsonResponse({'status': 'success', 'user': {'email': user.email}})
+                    return JsonResponse({'status': 'success', 'user': {'email': user.email, 'is_superuser': user.is_superuser}})
                 return redirect('analytics')
             else:
                 if request.content_type == 'application/json':
@@ -44,7 +45,7 @@ def CheckSessionView(request):
     if request.user.is_authenticated:
         return JsonResponse({
             'isAuthenticated': True,
-            'user': {'email': request.user.email}
+            'user': {'email': request.user.email, 'is_superuser': request.user.is_superuser}
         })
     return JsonResponse({'isAuthenticated': False}, status=401)
 
@@ -52,21 +53,39 @@ def CheckSessionView(request):
 def RegisterView(request):
     try:               
         if request.method == 'POST':
-            if 'email' in request.POST and 'password' in request.POST:
+            if request.content_type == 'application/json':
+                data = json.loads(request.body)
+                email = data.get('email')
+                password = data.get('password')
+                superusercheck = data.get('superusercheck', False)
+            else:
+                email = request.POST.get('email')
+                password = request.POST.get('password')
+                superusercheck = request.POST.get('superusercheck') == 'on'
+
+            if email and password:
                 if request.user.is_superuser:
                     User = get_user_model()
-                    user = User(email=request.POST['email'],is_editor=True)
-                    if 'superusercheck' in request.POST and request.POST['superusercheck'] == 'on':
+                    user = User(email=email, is_editor=True)
+                    if superusercheck:
                         user.is_superuser = True
                         user.is_staff = True
-                    user.set_password(request.POST['password'])
+                    user.set_password(password)
                     user.save()
+                    if request.content_type == 'application/json':
+                        return JsonResponse({'status': 'success', 'message': 'User created successfully'})
                     return redirect('analytics')
                 else:
+                    if request.content_type == 'application/json':
+                        return JsonResponse({'status': 'error', 'message': "You're not allowed to perform this action"}, status=403)
                     messages.error(request,"You're not allowed to perform this action")        
-    except Exception as e:        
+    except Exception as e:
+        if request.content_type == 'application/json':
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
         messages.error(request,str(e))
 
+    if request.content_type == 'application/json':
+        return JsonResponse({'status': 'error', 'message': 'GET method not allowed via API'}, status=405)
     return render(request,'auth/register.html')
 
 def LogoutView(request):    
@@ -77,4 +96,29 @@ def LogoutView(request):
            return redirect('login')
     except Exception as e:
         print(e)
-        messages.error(request,str(e))    
+        messages.error(request,str(e))
+
+def StationSettingsView(request):
+    try:
+        # Get or create the first station row to ensure one always exists
+        station, created = Station.objects.get_or_create(id=1)
+        
+        if request.method == 'GET':
+            return JsonResponse({
+                'station_id': station.station_id,
+                'station_name': station.station_name
+            })
+            
+        elif request.method == 'POST':
+            if not request.user.is_superuser:
+                return JsonResponse({'status': 'error', 'message': 'Unauthorized'}, status=403)
+                
+            data = json.loads(request.body)
+            station.station_id = data.get('station_id', station.station_id)
+            station.station_name = data.get('station_name', station.station_name)
+            station.save()
+            
+            return JsonResponse({'status': 'success', 'message': 'Station updated successfully'})
+            
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)

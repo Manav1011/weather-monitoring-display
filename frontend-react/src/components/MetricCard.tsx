@@ -11,6 +11,7 @@ interface MetricCardProps {
   min?: number | string;
   max?: number | string;
   timestamp?: string;
+  onDoubleClick?: () => void;
 }
 
 const MetricCard: React.FC<MetricCardProps> = ({
@@ -22,29 +23,42 @@ const MetricCard: React.FC<MetricCardProps> = ({
   min,
   max,
   timestamp,
+  onDoubleClick,
 }) => {
   const displayValue = useMemo(() => {
     if (typeof value === 'number') {
+      if (label.toLowerCase().includes('wind dir')) {
+        return value.toFixed(0);
+      }
       return value.toFixed(2);
     }
     return value;
-  }, [value]);
+  }, [value, label]);
+
+  const formatValue = (val: number | string | undefined) => {
+    if (typeof val === 'number') {
+      if (label.toLowerCase().includes('wind dir')) return val.toFixed(0);
+      return val.toFixed(2);
+    }
+    return val ?? '--';
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="bg-white rounded-none p-6 border border-slate-200 relative overflow-hidden group transition-all hover:border-primary-500"
-      style={{ borderLeft: `4px solid ${color}` }}
+      className="bg-white rounded-none p-6 border border-slate-200 relative overflow-hidden group transition-all hover:border-primary-500 cursor-pointer"
+      style={{ borderLeft: `8px solid ${color}` }}
+      onDoubleClick={onDoubleClick}
     >
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-3 mb-4 border-b border-slate-100 pb-2">
         <div 
           className="p-1 rounded-none bg-slate-50 group-hover:bg-primary-50 transition-colors"
           style={{ color }}
         >
-          <Icon size={18} />
+          <Icon size={24} />
         </div>
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+        <span className="text-sm font-extrabold text-slate-800 uppercase tracking-widest">
           {label} ({unit})
         </span>
       </div>
@@ -55,7 +69,8 @@ const MetricCard: React.FC<MetricCardProps> = ({
             key={value}
             initial={{ opacity: 0.5 }}
             animate={{ opacity: 1 }}
-            className="text-4xl font-display font-medium text-slate-900 tracking-tighter"
+            className="text-5xl font-display font-medium tracking-tighter"
+            style={{ color: color }}
           >
             {displayValue}
           </motion.div>
@@ -67,12 +82,12 @@ const MetricCard: React.FC<MetricCardProps> = ({
         )}
       </div>
 
-      <div className="flex gap-4 pt-4 border-t border-slate-100 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-        <div>
-          Min <span className="text-slate-900 ml-1">{min ?? '--'}</span>
+      <div className="flex justify-between items-center gap-4 pt-4 border-t border-slate-100 text-xs font-bold uppercase tracking-widest text-slate-500 mt-2">
+        <div className="bg-slate-50 px-3 py-1.5 rounded flex items-center">
+          Min <span className="text-slate-900 ml-2 font-black text-sm">{formatValue(min)}</span>
         </div>
-        <div className="border-l border-slate-100 pl-4">
-          Max <span className="text-slate-900 ml-1">{max ?? '--'}</span>
+        <div className="bg-slate-50 px-3 py-1.5 rounded flex items-center text-right">
+          Max <span className="text-slate-900 ml-2 font-black text-sm">{formatValue(max)}</span>
         </div>
       </div>
     </motion.div>

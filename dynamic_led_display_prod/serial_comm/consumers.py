@@ -4,8 +4,10 @@ import asyncio
 import numpy as np
 import pandas as pd
 from channels.db import database_sync_to_async
+from django.db.models import Min, Max
+from django.utils import timezone
 from .serializers import DailyAverageSerializer
-from .models import SerialCommunication,Averages
+from .models import SerialCommunication,Averages,Station
 import matplotlib.pyplot as plt
 import datetime
 import io
@@ -22,7 +24,11 @@ class SerialConsumer(AsyncWebsocketConsumer):
     entities = {
         'rs485':{},
         'rs232':{}
-    }    
+    }
+    
+    # Track instantaneous true 1-second records bypassing 1-min DB aggregation averages
+    live_min_max_cache = {}    
+    
     async def connect(self):
         self.client = self.scope["url_route"]["kwargs"]["client"]
         if self.client == 'consumer':
@@ -48,8 +54,17 @@ class SerialConsumer(AsyncWebsocketConsumer):
             action = text_data['action']
             
             if action == 'connection':
-                SerialConsumer.entities[device]['consumer'] = self             
-                print(SerialConsumer.entities) 
+                SerialConsumer.entities[device]['consumer'] = self
+                
+                # Fetch today's min-max bounds and push to the new client
+                min_max_data = await self.get_today_min_max(device)
+                await self.send(json.dumps({
+                    'action': 'initial_min_max',
+                    'device': device,
+                    'minMax': min_max_data
+                }))
+                
+                print(SerialConsumer.entities)
 
             if action == 'get_windrose':
                 values = text_data.get('values', False)
@@ -132,7 +147,27 @@ class SerialConsumer(AsyncWebsocketConsumer):
                 print(SerialConsumer.entities)
 
             if action == 'stream' and text_data.get('frame') and text_data.get('device'):
-                try:                    
+                try:
+                    frame_data = text_data['frame']
+                    now_date = timezone.localtime().date().isoformat()
+                    
+                    # Ensure tracking bounds correctly exist on dict format for the active day
+                    if device not in SerialConsumer.live_min_max_cache or SerialConsumer.live_min_max_cache[device].get('date') != now_date:
+                        SerialConsumer.live_min_max_cache[device] = {'date': now_date, 'bounds': {}}
+
+                    bounds = SerialConsumer.live_min_max_cache[device]['bounds']
+                    keys = ['ATMP', 'HUMD', 'WSPD', 'WDIR', 'RAIN', 'BPRS', 'SRAD']
+                    
+                    # Capture exact 1-second instantaneous limits
+                    for key in keys:
+                        if key in frame_data and frame_data[key] is not None:
+                            val = float(frame_data[key])
+                            if key not in bounds:
+                                bounds[key] = {'min': val, 'max': val}
+                            else:
+                                bounds[key]['min'] = min(bounds[key]['min'], val)
+                                bounds[key]['max'] = max(bounds[key]['max'], val)
+
                     # if SerialConsumer.entities[device]['panel']:                        
                         today = datetime.datetime.today()                                                
                         averages = await self.get_averages(today)
@@ -157,6 +192,47 @@ class SerialConsumer(AsyncWebsocketConsumer):
         average_serialized = DailyAverageSerializer(averages)        
         return average_serialized.data
     
+    @database_sync_to_async
+    def get_today_min_max(self, device):
+        today = timezone.localtime().date()
+        keys = ['ATMP', 'HUMD', 'WSPD', 'WDIR', 'RAIN', 'BPRS', 'SRAD']
+        
+        # Build the aggregation dictionary dynamically
+        agg_args = {}
+        for key in keys:
+            agg_args[f'{key}_min'] = Min(key)
+            agg_args[f'{key}_max'] = Max(key)
+            
+        aggregates = SerialCommunication.objects.filter(
+            device=device,
+            RTC__date=today
+        ).aggregate(**agg_args)
+        
+        min_max_dict = {}
+        for key in keys:
+            min_val = aggregates.get(f'{key}_min')
+            max_val = aggregates.get(f'{key}_max')
+            # Ignore None objects when zero hardware data has streamed today
+            if min_val is not None and max_val is not None:
+                min_max_dict[key] = {
+                    'min': float(min_val),
+                    'max': float(max_val)
+                }
+
+        # Merge Memory Trims natively
+        now_date = today.isoformat()
+        if device in SerialConsumer.live_min_max_cache and SerialConsumer.live_min_max_cache[device].get('date') == now_date:
+            bounds = SerialConsumer.live_min_max_cache[device]['bounds']
+            for key in keys:
+                if key in bounds:
+                    if key not in min_max_dict:
+                        min_max_dict[key] = {'min': bounds[key]['min'], 'max': bounds[key]['max']}
+                    else:
+                        min_max_dict[key]['min'] = min(min_max_dict[key]['min'], bounds[key]['min'])
+                        min_max_dict[key]['max'] = max(min_max_dict[key]['max'], bounds[key]['max'])
+
+        return min_max_dict
+    
     async def send_frame_stream(self, event): 
         text_data = event['frame_obj']        
         await self.send(json.dumps(text_data))
@@ -169,13 +245,22 @@ class SerialConsumer(AsyncWebsocketConsumer):
 
         if speed_dir_objs:
             df = pd.DataFrame(speed_dir_objs).apply(pd.to_numeric, errors='coerce', downcast='float').round(3)
+            # Convert Wind Speed from m/s to km/h
+            df['WSPD'] = df['WSPD'] * 3.6
             direction_bins = [0, 45, 90, 135, 180, 225, 270, 315, 360]
             direction_labels = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
             df['WDIR_BIN'] = pd.cut(df['WDIR'], bins=direction_bins, labels=direction_labels, right=False, include_lowest=True)
             distribution_table = df.groupby('WDIR_BIN').size().reset_index(name='count')
             distribution_table['percentage'] = (distribution_table['count'] / distribution_table['count'].sum()) * 100
             distribution_table = distribution_table.set_index('WDIR_BIN').reindex(direction_labels).T
-            table_csv = distribution_table.to_csv()
+            
+            try:
+                station = Station.objects.first()
+                station_header = f"Station ID: {station.station_id}\nStation Name: {station.station_name}\n\n" if station else "Station ID: N/A\nStation Name: N/A\n\n"
+            except Exception:
+                station_header = "Station ID: N/A\nStation Name: N/A\n\n"
+                
+            table_csv = station_header + distribution_table.to_csv()
             # Calculate distribution table
             # wind_bins = [0, 45, 90, 135, 180, 225, 270, 315, 360]  # Adjust as needed
             # df['Wind Direction Category'] = pd.cut(df['WDIR'], bins=wind_bins, labels=False, right=False)
@@ -201,7 +286,7 @@ class SerialConsumer(AsyncWebsocketConsumer):
             else:
                 ax.contourf(wind_direction, wind_speed, normed=True, cmap=cm.hot)
 
-            ax.legend(title="Wind Speed (m/s)")
+            ax.legend(title="Wind Speed (km/h)", decimal_places=0)
             ax.set_title("Windrose")
 
             image_data = io.BytesIO()
@@ -226,9 +311,16 @@ class SerialConsumer(AsyncWebsocketConsumer):
             del df_params['RTC']     
             FLOAT_DF = df_params.apply(pd.to_numeric,errors='coerce', downcast='float').round(3)
             summary_df = FLOAT_DF.describe().applymap(lambda x: f'{x:.2f}')
-            summary_csv = summary_df.to_csv()
+            
+            try:
+                station = Station.objects.first()
+                station_header = f"Station ID: {station.station_id}\nStation Name: {station.station_name}\n\n" if station else "Station ID: N/A\nStation Name: N/A\n\n"
+            except Exception:
+                station_header = "Station ID: N/A\nStation Name: N/A\n\n"
+                
+            summary_csv = station_header + summary_df.to_csv()
             raw_csv = pd.DataFrame(line_chart_objs).to_csv(index=False)
-            table_csv = f"--- ANALYSIS SUMMARY ---\n{summary_csv}\n\n--- RAW DATA ---\n{raw_csv}"
+            table_csv = f"--- ANALYSIS SUMMARY ---\n{summary_csv}\n\n--- RAW DATA ---\n{station_header}{raw_csv}"
             table_html = summary_df.to_html(classes='table table-bordered table-striped text-center', escape=False, index=True,justify='center').replace('\n','')
             title_html = f'<div class="alert alert-primary" role="alert">FROM {start_date.strftime("%Y-%m-%d %H:%M:%S")} TO {end_date.strftime("%Y-%m-%d %H:%M:%S")}</div>'            
             table_html = title_html + table_html
@@ -262,9 +354,16 @@ class SerialConsumer(AsyncWebsocketConsumer):
             # del df_params['RTC']     
             FLOAT_DF = df_params[value].apply(pd.to_numeric,errors='coerce', downcast='float').round(3)
             summary_df = pd.DataFrame(FLOAT_DF).describe().applymap(lambda x: f'{x:.2f}')       
-            summary_csv = summary_df.to_csv()
+            
+            try:
+                station = Station.objects.first()
+                station_header = f"Station ID: {station.station_id}\nStation Name: {station.station_name}\n\n" if station else "Station ID: N/A\nStation Name: N/A\n\n"
+            except Exception:
+                station_header = "Station ID: N/A\nStation Name: N/A\n\n"
+                
+            summary_csv = station_header + summary_df.to_csv()
             raw_csv = pd.DataFrame(line_chart_objs).to_csv(index=False)
-            table_csv = f"--- ANALYSIS SUMMARY ---\n{summary_csv}\n\n--- RAW DATA ---\n{raw_csv}"
+            table_csv = f"--- ANALYSIS SUMMARY ---\n{summary_csv}\n\n--- RAW DATA ---\n{station_header}{raw_csv}"
             table_html = summary_df.to_html(classes='table table-bordered table-striped text-center', escape=False, index=True,justify='center').replace('\n','')
             title_html = f'<div class="alert alert-primary" role="alert">FROM {start_date.strftime("%Y-%m-%d %H:%M:%S")} TO {end_date.strftime("%Y-%m-%d %H:%M:%S")}</div>'            
             table_html = title_html + table_html
@@ -294,7 +393,14 @@ class SerialConsumer(AsyncWebsocketConsumer):
             if key != 'RTC':
                  if value == None: 
                      value = 0.0
-                 setattr(frame_obj, key, float(value))  # Set the attribute using setattr
+                 
+                 float_val = float(value)
+                 if key == 'WDIR':
+                     final_val = float(int(round(float_val)))
+                 else:
+                     final_val = round(float_val, 2)
+                     
+                 setattr(frame_obj, key, final_val)  # Set the attribute using setattr
             else:
                  setattr(frame_obj, key, datetime.datetime.fromisoformat(value))
         frame_obj.save() 

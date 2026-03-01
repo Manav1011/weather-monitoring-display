@@ -7,7 +7,7 @@ axios.defaults.xsrfHeaderName = "X-CSRFToken";
 axios.defaults.xsrfCookieName = "csrftoken";
 
 interface AuthState {
-    user: any | null;
+    user: { email: string; is_superuser?: boolean } | null;
     isAuthenticated: boolean;
     isLoading: boolean;
     login: (userData: any) => void;

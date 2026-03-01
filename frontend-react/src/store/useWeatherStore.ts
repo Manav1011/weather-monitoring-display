@@ -11,6 +11,7 @@ interface WeatherState {
     setCurrentFrame: (frame: WeatherFrame) => void;
     setAverages: (averages: WeatherAverages) => void;
     setConnected: (status: boolean) => void;
+    initMinMax: (initialValues: Record<string, { min: number; max: number }>) => void;
     resetMinMax: () => void;
 }
 
@@ -51,5 +52,6 @@ export const useWeatherStore = create<WeatherState>((set) => ({
     }),
     setAverages: (averages) => set({ averages }),
     setConnected: (isConnected) => set({ isConnected }),
+    initMinMax: (initialValues) => set({ minMax: initialValues }),
     resetMinMax: () => set({ minMax: {} }),
 }));

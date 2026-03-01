@@ -44,7 +44,7 @@ const RealTimeTable: React.FC = () => {
                             <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200 text-center">Spd (m/s)</th>
                             <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200 text-center">Dir (°)</th>
                             <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200 text-center">Rain (mm)</th>
-                            <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200 text-center">BP (mBar)</th>
+                            <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200 text-center">BP (mmHg)</th>
                             <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200 text-center">Solar (W/m²)</th>
                         </tr>
                     </thead>
@@ -57,12 +57,12 @@ const RealTimeTable: React.FC = () => {
                                         <span className="text-[9px] text-slate-400 ml-2">{frame.RTC.split('T')[0]}</span>
                                     </td>
                                     <td className="px-6 py-4 text-[11px] font-bold text-primary-600 text-center">{frame.ATMP?.toFixed(2)}</td>
-                                    <td className="px-6 py-4 text-[11px] font-bold text-orange-600 text-center">{frame.HUMD?.toFixed(1)}</td>
+                                    <td className="px-6 py-4 text-[11px] font-bold text-orange-600 text-center">{frame.HUMD?.toFixed(2)}</td>
                                     <td className="px-6 py-4 text-[11px] font-bold text-teal-600 text-center">{frame.WSPD?.toFixed(2)}</td>
                                     <td className="px-6 py-4 text-[11px] font-bold text-pink-600 text-center">{frame.WDIR?.toFixed(0)}</td>
                                     <td className="px-6 py-4 text-[11px] font-bold text-blue-600 text-center">{frame.RAIN?.toFixed(2)}</td>
-                                    <td className="px-6 py-4 text-[11px] font-bold text-purple-600 text-center">{frame.BPRS?.toFixed(1)}</td>
-                                    <td className="px-6 py-4 text-[11px] font-bold text-amber-600 text-center">{frame.SRAD?.toFixed(0)}</td>
+                                    <td className="px-6 py-4 text-[11px] font-bold text-purple-600 text-center">{frame.BPRS?.toFixed(2)}</td>
+                                    <td className="px-6 py-4 text-[11px] font-bold text-amber-600 text-center">{frame.SRAD?.toFixed(2)}</td>
                                 </tr>
                             ))
                         ) : (
