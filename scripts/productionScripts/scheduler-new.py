@@ -62,25 +62,8 @@ def find_averages(dict_to_store,stored_list):
     print(dict_to_store)
     return dict_to_store
 
-def convert_to_number(value):
-    try:
-        return int(value)  # Try converting to int first
-    except ValueError:
-        return float(value)  # If it fails, convert to float
-
 def update_dict_with_values(dict_to_stream,values_list):
-    # for index,value in enumerate(values_list,start=1):
-    #     if index == 9:
-    #         values_list[index - 1] = value/100
-    #         pass
-    #     if index == 11:
-    #         values_list[index - 1] = value*.25
-    #     if index == 12:
-    #         updated_val = (((value/4095.0)*3.3)*1000)/1.67
-    #         values_list[index - 1] = updated_val
-    # return values_list
     for key,value in zip(dict_to_stream,values_list):
-        value = convert_to_number(value)
         if key == 'WSPD':
             value = value / 100  # Convert cm/s to m/s
         if key == 'RAIN':
@@ -89,12 +72,12 @@ def update_dict_with_values(dict_to_stream,values_list):
             value = (((value/4095.0)*3.3)*1000)/1.67
         dict_to_stream[key] = value
     dict_to_stream['RTC'] = datetime.datetime(
-        year=dict_to_stream["YEAR"],
-        month=dict_to_stream["MONTH"],
-        day=dict_to_stream["DAY"],
-        hour=dict_to_stream["HOUR"],
-        minute=dict_to_stream["MINUTE"],
-        second=dict_to_stream["SECOND"]
+        year=int(dict_to_stream["YEAR"]),
+        month=int(dict_to_stream["MONTH"]),
+        day=int(dict_to_stream["DAY"]),
+        hour=int(dict_to_stream["HOUR"]),
+        minute=int(dict_to_stream["MINUTE"]),
+        second=int(dict_to_stream["SECOND"])
     ).isoformat()
     return dict_to_stream
 
@@ -128,7 +111,6 @@ async def read_and_print(websocket):
                         stored_list.append(dict_to_stream)
                         sensors_to_include = ['RTC','WSPD','WDIR','RAIN','SRAD','BPRS','HUMD','ATMP']
                         filtered_dict = {key: dict_to_stream[key] for key in sensors_to_include if key in dict_to_stream}
-                        # Zero value formatting and data format for live values
                         def format_value(key, value):
                             # Replace near-zero with 0
                             if isinstance(value, float) and abs(value) < 1e-6:
@@ -138,7 +120,7 @@ async def read_and_print(websocket):
                             elif key == 'WDIR':
                                 return f"{int(round(value)):03d}"
                             elif key in ['ATMP', 'HUMD', 'RAIN', 'BPRS']:
-                                return f"{value:.1f}"
+                                return f"{value:.2f}"
                             else:
                                 return value
                         filtered_dict = {key: format_value(key, val) for key, val in filtered_dict.items()}
@@ -158,7 +140,6 @@ async def read_and_print(websocket):
                             dict_to_store["SRAD"] = float(df['SRAD'].mean())
                             dict_to_store["BPRS"] = float(df['BPRS'].mean())
                             dict_to_store["HUMD"] = float(df['HUMD'].mean())
-                            # Zero value formatting and data format for stored values
                             def format_store_value(key, value):
                                 if isinstance(value, float) and abs(value) < 1e-6:
                                     value = 0.0
@@ -167,7 +148,7 @@ async def read_and_print(websocket):
                                 elif key == 'WDIR':
                                     return f"{int(round(value)):03d}"
                                 elif key in ['ATMP', 'HUMD', 'RAIN', 'BPRS']:
-                                    return f"{value:.1f}"
+                                    return f"{value:.2f}"
                                 else:
                                     return value
                             dict_to_store = {key: format_store_value(key, val) for key, val in dict_to_store.items()}

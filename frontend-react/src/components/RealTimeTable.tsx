@@ -8,6 +8,12 @@ const RealTimeTable: React.FC = () => {
 
     const displayData = [...history].reverse().slice(0, viewLimit);
 
+    const formatNumber = (val: string | number | undefined, decimals: number = 2) => {
+        if (val === undefined || val === null) return '--';
+        const num = typeof val === 'number' ? val : parseFloat(val);
+        return isNaN(num) ? '--' : num.toFixed(decimals);
+    };
+
     return (
         <div className="bg-white border border-slate-200 flex flex-col h-[500px]">
             <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-white">
@@ -56,13 +62,13 @@ const RealTimeTable: React.FC = () => {
                                         {frame.RTC.split('T')[1].split('.')[0]} {/* Just show time for brevity */}
                                         <span className="text-[9px] text-slate-400 ml-2">{frame.RTC.split('T')[0]}</span>
                                     </td>
-                                    <td className="px-6 py-4 text-[11px] font-bold text-primary-600 text-center">{frame.ATMP?.toFixed(2)}</td>
-                                    <td className="px-6 py-4 text-[11px] font-bold text-orange-600 text-center">{frame.HUMD?.toFixed(2)}</td>
-                                    <td className="px-6 py-4 text-[11px] font-bold text-teal-600 text-center">{frame.WSPD?.toFixed(2)}</td>
-                                    <td className="px-6 py-4 text-[11px] font-bold text-pink-600 text-center">{frame.WDIR?.toFixed(0)}</td>
-                                    <td className="px-6 py-4 text-[11px] font-bold text-blue-600 text-center">{frame.RAIN?.toFixed(2)}</td>
-                                    <td className="px-6 py-4 text-[11px] font-bold text-purple-600 text-center">{frame.BPRS?.toFixed(2)}</td>
-                                    <td className="px-6 py-4 text-[11px] font-bold text-amber-600 text-center">{frame.SRAD?.toFixed(2)}</td>
+                                    <td className="px-6 py-4 text-[11px] font-bold text-primary-600 text-center">{formatNumber(frame.ATMP, 2)}</td>
+                                    <td className="px-6 py-4 text-[11px] font-bold text-orange-600 text-center">{formatNumber(frame.HUMD, 2)}</td>
+                                    <td className="px-6 py-4 text-[11px] font-bold text-teal-600 text-center">{formatNumber(frame.WSPD, 2)}</td>
+                                    <td className="px-6 py-4 text-[11px] font-bold text-pink-600 text-center">{formatNumber(frame.WDIR, 0)}</td>
+                                    <td className="px-6 py-4 text-[11px] font-bold text-blue-600 text-center">{formatNumber(frame.RAIN, 2)}</td>
+                                    <td className="px-6 py-4 text-[11px] font-bold text-purple-600 text-center">{formatNumber(frame.BPRS, 2)}</td>
+                                    <td className="px-6 py-4 text-[11px] font-bold text-amber-600 text-center">{formatNumber(frame.SRAD, 2)}</td>
                                 </tr>
                             ))
                         ) : (
