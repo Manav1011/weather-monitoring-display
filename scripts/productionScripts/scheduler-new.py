@@ -170,8 +170,8 @@ async def main():
                 await websocket.send(json.dumps({'client': 'producer','device': 'rs485','action': 'connection'}))
                 await asyncio.gather(read_and_print(websocket),receive_messages(websocket=websocket))                
         except Exception as e:
-            print(e)        
-            await asyncio.sleep(5)                
+            print(f"Connection failed or interrupted: {e}")
+            await asyncio.sleep(5)
             continue
 
 asyncio.run(main())
