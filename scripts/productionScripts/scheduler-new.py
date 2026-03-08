@@ -33,8 +33,9 @@ async def receive_messages(websocket):
         while True:
             message = await websocket.recv()
             print(message)
-    except websockets.ConnectionClosed:
+    except websockets.ConnectionClosed as e:
         print("WebSocket connection closed")
+        raise e
 
 
 async def send_messages(websocket, data=None):
@@ -42,7 +43,7 @@ async def send_messages(websocket, data=None):
         if data is not None:
             await websocket.send(json.dumps(data))
     except websockets.ConnectionClosed as e:
-        exit(e)
+        raise e
 
 
 
@@ -155,6 +156,9 @@ async def read_and_print(websocket):
                             await send_messages(websocket, data={'client': 'producer', 'device': 'rs485', 'action': 'store', 'frame': dict_to_store})
                             stored_list = []
                         prev_minute = current_minute
+        except websockets.ConnectionClosed as e:
+            print(f"WebSocket closed in read_and_print: {e}")
+            raise e
         except Exception as e:
             print(f"Serial port error: {e}. Retrying with new port in 5 seconds...")
             await asyncio.sleep(5)
