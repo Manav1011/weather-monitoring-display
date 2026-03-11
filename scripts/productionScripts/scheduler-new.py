@@ -63,14 +63,18 @@ def find_averages(dict_to_store,stored_list):
     print(dict_to_store)
     return dict_to_store
 
-def update_dict_with_values(dict_to_stream,values_list):
-    for key,value in zip(dict_to_stream,values_list):
+def update_dict_with_values(dict_to_stream, values_list):
+    keys = ["SECOND", "MINUTE", "HOUR", "DAY", "MONTH", "YEAR", "ATMP", "HUMD", "WSPD", "WDIR", "RAIN", "SRAD", "BPRS"]
+    for i, value in enumerate(values_list):
+        if i >= len(keys):
+            break
+        key = keys[i]
         if key == 'WSPD':
             value = value / 100  # Convert cm/s to m/s
         if key == 'RAIN':
-            value = value / 20 if value != 0 else 0  # Convert to mm, set to 0 if raw is 0
+            value = value / 20 if value != 0 else 0  # Convert to mm
         if key == 'SRAD':
-            value = (((value/4095.0)*3.3)*1000)/1.67
+            value = (((value / 4095.0) * 3.3) * 1000) / 1.67
         dict_to_stream[key] = value
     dict_to_stream['RTC'] = datetime.datetime(
         year=int(dict_to_stream["YEAR"]),
@@ -134,13 +138,16 @@ async def read_and_print(websocket):
                             # Aggregate and store for the previous minute
                             df = pd.DataFrame(stored_list)
                             dict_to_store["WSPD"] = float(df['WSPD'].mean())
-                            dict_to_store["RTC"] = str(df['RTC'].iloc[-1])
+                            # Set RTC to the start of the minute we just finished aggregating
+                            last_rtc_dt = datetime.datetime.fromisoformat(df['RTC'].iloc[-1])
+                            dict_to_store["RTC"] = last_rtc_dt.replace(second=0).isoformat()
                             dict_to_store["WDIR"] = float(round(circmean(df['WDIR'], high=360, low=0),3))
                             dict_to_store["ATMP"] = float(df['ATMP'].mean())
                             dict_to_store["RAIN"] = float(df['RAIN'].max() - df['RAIN'].min())
                             dict_to_store["SRAD"] = float(df['SRAD'].mean())
                             dict_to_store["BPRS"] = float(df['BPRS'].mean())
                             dict_to_store["HUMD"] = float(df['HUMD'].mean())
+                            
                             def format_store_value(key, value):
                                 if isinstance(value, float) and abs(value) < 1e-6:
                                     value = 0.0
@@ -152,9 +159,13 @@ async def read_and_print(websocket):
                                     return f"{value:.2f}"
                                 else:
                                     return value
+                            
                             dict_to_store = {key: format_store_value(key, val) for key, val in dict_to_store.items()}
                             await send_messages(websocket, data={'client': 'producer', 'device': 'rs485', 'action': 'store', 'frame': dict_to_store})
                             stored_list = []
+                        
+                        if prev_minute is None:
+                            prev_minute = current_minute
                         prev_minute = current_minute
         except websockets.ConnectionClosed as e:
             print(f"WebSocket closed in read_and_print: {e}")

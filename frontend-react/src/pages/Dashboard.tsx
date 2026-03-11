@@ -36,7 +36,7 @@ const Dashboard: React.FC = () => {
     const [fullscreenParam, setFullscreenParam] = React.useState<string | null>(null);
     const [activeTab, setActiveTab] = React.useState<'dashboard' | 'settings'>('dashboard');
 
-    const [analyticsResult, setAnalyticsResult] = React.useState<{ image?: string; html?: string; csv?: string; isGenerating?: boolean }>({});
+    const [analyticsResult, setAnalyticsResult] = React.useState<{ image?: string; html?: string; csv?: string; rawData?: any[]; isGenerating?: boolean }>({});
     const [windroseResult, setWindroseResult] = React.useState<{ image?: string; html?: string; csv?: string; isGenerating?: boolean }>({});
 
     const { sendAction } = useWeatherSocket();
@@ -58,6 +58,7 @@ const Dashboard: React.FC = () => {
                     image: data.image_base64,
                     html: data.df_html,
                     csv: data.df_csv,
+                    rawData: data.raw_data,
                     isGenerating: false
                 });
             } else if (data.action === 'windrose_received' || data.action === 'no_windrose_data') {
@@ -257,7 +258,7 @@ const Dashboard: React.FC = () => {
 
         {/* Charts Row */}
         <div id="live-chart" className="mb-12 pt-4">
-          <div className="bg-white p-8 border border-slate-200 flex flex-col h-[500px]">
+          <div className="bg-white p-8 border border-slate-200 flex flex-col h-[700px]">
             <div className="flex justify-between items-center mb-8 border-b border-slate-50 pb-4">
               <h3 className="font-display font-bold text-xs text-primary-900 uppercase tracking-[0.2em] flex items-center gap-2">
                 <BarChart2 className="text-primary-500" size={16} />
@@ -296,6 +297,7 @@ const Dashboard: React.FC = () => {
               imageBase64={analyticsResult.image}
               tableHtml={analyticsResult.html}
               tableCsv={analyticsResult.csv}
+              rawData={analyticsResult.rawData}
               isGenerating={analyticsResult.isGenerating}
             />
           </div>
@@ -372,12 +374,12 @@ const Dashboard: React.FC = () => {
               </div>
           </div>
 
-          <div className="bg-white p-8 border border-slate-200 shadow-sm h-[500px] mb-8">
+          <div className="bg-white p-8 border border-slate-200 shadow-sm h-[700px] mb-8">
             <h3 className="font-display font-bold text-xs text-primary-900 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
               <Activity className="text-primary-500" size={16} />
               Live Trends
             </h3>
-            <div className="h-[400px]">
+            <div className="h-[600px]">
                 <RealTimeChart 
                     parameter={fullscreenParam} 
                     label={fullscreenMetric.label}

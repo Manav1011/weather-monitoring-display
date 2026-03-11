@@ -18,6 +18,23 @@ from matplotlib import cm
 from matplotlib.colors import ListedColormap
 import base64
 import matplotlib.dates as mdates
+from django.utils.timezone import make_aware, get_current_timezone
+from decimal import Decimal
+
+
+class CustomJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        if isinstance(obj, (np.integer, np.floating)):
+            if np.isnan(obj) or np.isinf(obj):
+                return None
+            return obj.item()
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        if isinstance(obj, (datetime.datetime, datetime.date)):
+            return obj.isoformat()
+        return super(CustomJSONEncoder, self).default(obj)
 
 
 class SerialConsumer(AsyncWebsocketConsumer):
@@ -62,7 +79,7 @@ class SerialConsumer(AsyncWebsocketConsumer):
                     'action': 'initial_min_max',
                     'device': device,
                     'minMax': min_max_data
-                }))
+                }, cls=CustomJSONEncoder))
                 
                 print(SerialConsumer.entities)
 
@@ -85,7 +102,7 @@ class SerialConsumer(AsyncWebsocketConsumer):
                         'image_base64':result[0],
                         'df_html':result[1],
                         'df_csv':result[2]
-                    }))
+                    }, cls=CustomJSONEncoder))
                 else:
                     await self.send(json.dumps({
                         'action':'no_windrose_data',
@@ -107,8 +124,9 @@ class SerialConsumer(AsyncWebsocketConsumer):
                         'device':'rs485',
                         'image_base64':result[0],
                         'df_html':result[1],
-                        'df_csv':result[2]
-                    }))
+                        'df_csv':result[2],
+                        'raw_data': result[3] if len(result) > 3 else None
+                    }, cls=CustomJSONEncoder))
                 else:
                     await self.send(json.dumps({
                         'action':'no_data',
@@ -129,8 +147,9 @@ class SerialConsumer(AsyncWebsocketConsumer):
                         'device':'rs485',
                         'image_base64':result[0],
                         'df_html':result[1],
-                        'df_csv':result[2]
-                    }))
+                        'df_csv':result[2],
+                        'raw_data': result[3] if len(result) > 3 else None
+                    }, cls=CustomJSONEncoder))
                 else:
                     await self.send(json.dumps({
                         'action':'no_data',
@@ -235,7 +254,7 @@ class SerialConsumer(AsyncWebsocketConsumer):
     
     async def send_frame_stream(self, event): 
         text_data = event['frame_obj']        
-        await self.send(json.dumps(text_data))
+        await self.send(json.dumps(text_data, cls=CustomJSONEncoder))
 
     @database_sync_to_async
     def get_windrose(self, device, values=False, colors=False, daterange=None):
@@ -301,87 +320,164 @@ class SerialConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_line_chart(self,device,params,daterange):
-        start_date = datetime.datetime.fromtimestamp(daterange[0]/1000)
-        end_date = datetime.datetime.fromtimestamp(daterange[1]/1000)
-        params.append('RTC')
-        line_chart_objs = SerialCommunication.objects.filter(device=device,RTC__range=(start_date, end_date)).values(*params)        
+        tz = get_current_timezone()
+        start_date = make_aware(datetime.datetime.fromtimestamp(daterange[0]/1000), tz)
+        end_date = make_aware(datetime.datetime.fromtimestamp(daterange[1]/1000), tz)
+        
+        # Ensure 'RTC' is in the values but keep track of requested params
+        requested_params = [p for p in params if p != 'RTC']
+        fetch_params = list(set(requested_params + ['RTC']))
+        
+        line_chart_objs = SerialCommunication.objects.filter(device=device,RTC__range=(start_date, end_date)).order_by('RTC').values(*fetch_params)        
         if line_chart_objs:
-            df_params = pd.DataFrame(line_chart_objs)
-            RTC_DF = df_params['RTC']
-            del df_params['RTC']     
-            FLOAT_DF = df_params.apply(pd.to_numeric,errors='coerce', downcast='float').round(3)
-            summary_df = FLOAT_DF.describe().applymap(lambda x: f'{x:.2f}')
+            df = pd.DataFrame(line_chart_objs)
+            
+            # Map for Units
+            unit_map = {
+                'ATMP': 'Ambient Temperature (°C)',
+                'HUMD': 'Humidity (%)',
+                'WSPD': 'Wind Speed (m/s)',
+                'WDIR': 'Wind Direction (°)',
+                'RAIN': 'Rainfall (mm)',
+                'BPRS': 'Barometric Pressure (mmHg)',
+                'SRAD': 'Solar Radiation (W/m²)',
+                'RTC': 'Date & Time'
+            }
+
+            # Prepare Raw Data for Frontend Interactive Chart
+            raw_data_json = df.copy()
+            raw_data_json['RTC'] = raw_data_json['RTC'].dt.strftime('%Y-%m-%d %H:%M:%S')
+            raw_data_list = raw_data_json.to_dict(orient='records')
+
+            # Prepare for CSV and Summary
+            FLOAT_DF = df[requested_params].apply(pd.to_numeric, errors='coerce', downcast='float').round(3)
+            
+            # Create a summary DF with Units in column names
+            summary_df = FLOAT_DF.describe().round(2)
+            summary_df.columns = [unit_map.get(col, col) for col in summary_df.columns]
             
             try:
                 station = Station.objects.first()
                 station_header = f"Station ID: {station.station_id}\nStation Name: {station.station_name}\n\n" if station else "Station ID: N/A\nStation Name: N/A\n\n"
             except Exception:
                 station_header = "Station ID: N/A\nStation Name: N/A\n\n"
-                
-            summary_csv = station_header + summary_df.to_csv()
-            raw_csv = pd.DataFrame(line_chart_objs).to_csv(index=False)
-            table_csv = f"--- ANALYSIS SUMMARY ---\n{summary_csv}\n\n--- RAW DATA ---\n{station_header}{raw_csv}"
+            
+            # Formatting CSV as requested: Date and Time in columns A and B
+            csv_df = df.copy()
+            csv_df['Date'] = csv_df['RTC'].dt.strftime('%Y-%m-%d')
+            csv_df['Time'] = csv_df['RTC'].dt.strftime('%H:%M:%S')
+            
+            # Reorder columns: Date, Time, then sensors
+            cols = ['Date', 'Time'] + requested_params
+            csv_df = csv_df[cols]
+            
+            # Rename sensor columns to include units
+            csv_df.columns = ['Date', 'Time'] + [unit_map.get(p, p) for p in requested_params]
+            
+            summary_csv = station_header + "--- ANALYSIS SUMMARY ---\n" + summary_df.to_csv()
+            raw_data_csv = csv_df.to_csv(index=False)
+            table_csv = f"{summary_csv}\n\n--- RAW SENSOR DATA ---\n{station_header}{raw_data_csv}"
+            
             table_html = summary_df.to_html(classes='table table-bordered table-striped text-center', escape=False, index=True,justify='center').replace('\n','')
-            title_html = f'<div class="alert alert-primary" role="alert">FROM {start_date.strftime("%Y-%m-%d %H:%M:%S")} TO {end_date.strftime("%Y-%m-%d %H:%M:%S")}</div>'            
+            title_html = f'<div class="alert alert-primary font-weight-bold" role="alert">ANALYTICS FROM {start_date.strftime("%Y-%m-%d %H:%M:%S")} TO {end_date.strftime("%Y-%m-%d %H:%M:%S")} (Total Records: {len(df)})</div>'            
             table_html = title_html + table_html
-            for i in params:
-                if i != 'RTC':
-                    plt.plot(RTC_DF, FLOAT_DF[i],label=i)
+
+            # Plotting (Matplotlib fallback)
+            plt.figure(figsize=(12, 6))
+            for i in requested_params:
+                 plt.plot(df['RTC'], FLOAT_DF[i], label=unit_map.get(i, i))
+            
             plt.gcf().autofmt_xdate()
             date_format = mdates.DateFormatter("%Y-%m-%d %H:%M:%S")
             plt.gca().xaxis.set_major_formatter(date_format)
             plt.xlabel('Time')
             plt.ylabel('Values')
-            plt.title('Line Chart of Parameters Over Time')
+            plt.title('Parameter Analysis Over Time')
             plt.legend()
+            plt.grid(True, alpha=0.3)
+            
             line_data = io.BytesIO()        
-            plt.savefig(line_data, format="png")
+            plt.savefig(line_data, format="png", bbox_inches='tight', dpi=100)
             line_data.seek(0)
             image_base64 = base64.b64encode(line_data.read()).decode('utf-8')
-            plt.clf()
-            return [image_base64,table_html,table_csv]
+            plt.close()
+            
+            return [image_base64, table_html, table_csv, raw_data_list]
         else:
             return False
     
     @database_sync_to_async
     def get_area_chart(self,device,value,daterange):
-        start_date = datetime.datetime.fromtimestamp(daterange[0]/1000)
-        end_date = datetime.datetime.fromtimestamp(daterange[1]/1000)
+        tz = get_current_timezone()
+        start_date = make_aware(datetime.datetime.fromtimestamp(daterange[0]/1000), tz)
+        end_date = make_aware(datetime.datetime.fromtimestamp(daterange[1]/1000), tz)
+        
         params = [value,'RTC']
-        line_chart_objs = SerialCommunication.objects.filter(device=device,RTC__range=(start_date, end_date)).values(*params)        
+        line_chart_objs = SerialCommunication.objects.filter(device=device,RTC__range=(start_date, end_date)).order_by('RTC').values(*params)        
         if line_chart_objs:
-            df_params = pd.DataFrame(line_chart_objs)                
-            # del df_params['RTC']     
-            FLOAT_DF = df_params[value].apply(pd.to_numeric,errors='coerce', downcast='float').round(3)
-            summary_df = pd.DataFrame(FLOAT_DF).describe().applymap(lambda x: f'{x:.2f}')       
+            df = pd.DataFrame(line_chart_objs)
+            
+            unit_map = {
+                'ATMP': 'Ambient Temperature (°C)',
+                'HUMD': 'Humidity (%)',
+                'WSPD': 'Wind Speed (m/s)',
+                'WDIR': 'Wind Direction (°)',
+                'RAIN': 'Rainfall (mm)',
+                'BPRS': 'Barometric Pressure (mmHg)',
+                'SRAD': 'Solar Radiation (W/m²)',
+                'RTC': 'Date & Time'
+            }
+            
+            # Prepare Raw Data for Frontend
+            raw_data_json = df.copy()
+            raw_data_json['RTC'] = raw_data_json['RTC'].dt.strftime('%Y-%m-%d %H:%M:%S')
+            raw_data_list = raw_data_json.to_dict(orient='records')
+            
+            FLOAT_DF = df[value].apply(pd.to_numeric, errors='coerce', downcast='float').round(3)
+            
+            # Summary Table
+            summary_df = pd.DataFrame(FLOAT_DF).describe().round(2)
+            summary_df.columns = [unit_map.get(value, value)]
             
             try:
                 station = Station.objects.first()
                 station_header = f"Station ID: {station.station_id}\nStation Name: {station.station_name}\n\n" if station else "Station ID: N/A\nStation Name: N/A\n\n"
             except Exception:
                 station_header = "Station ID: N/A\nStation Name: N/A\n\n"
-                
-            summary_csv = station_header + summary_df.to_csv()
-            raw_csv = pd.DataFrame(line_chart_objs).to_csv(index=False)
-            table_csv = f"--- ANALYSIS SUMMARY ---\n{summary_csv}\n\n--- RAW DATA ---\n{station_header}{raw_csv}"
+            
+            # CSV with Date/Time split
+            csv_df = df.copy()
+            csv_df['Date'] = csv_df['RTC'].dt.strftime('%Y-%m-%d')
+            csv_df['Time'] = csv_df['RTC'].dt.strftime('%H:%M:%S')
+            csv_df[unit_map.get(value, value)] = csv_df[value]
+            csv_df = csv_df[['Date', 'Time', unit_map.get(value, value)]]
+            
+            summary_csv = station_header + "--- ANALYSIS SUMMARY ---\n" + summary_df.to_csv()
+            raw_data_csv = csv_df.to_csv(index=False)
+            table_csv = f"{summary_csv}\n\n--- RAW SENSOR DATA ---\n{station_header}{raw_data_csv}"
+            
             table_html = summary_df.to_html(classes='table table-bordered table-striped text-center', escape=False, index=True,justify='center').replace('\n','')
-            title_html = f'<div class="alert alert-primary" role="alert">FROM {start_date.strftime("%Y-%m-%d %H:%M:%S")} TO {end_date.strftime("%Y-%m-%d %H:%M:%S")}</div>'            
+            title_html = f'<div class="alert alert-primary font-weight-bold" role="alert">AREA ANALYSIS OF {unit_map.get(value, value)} FROM {start_date.strftime("%Y-%m-%d %H:%M:%S")} TO {end_date.strftime("%Y-%m-%d %H:%M:%S")} (Total Records: {len(df)})</div>'            
             table_html = title_html + table_html
-            df_params.set_index('RTC', inplace=True)
-            plt.figure(figsize=(10, 6))
-            plt.fill_between(df_params.index, FLOAT_DF, color='skyblue', alpha=0.4, label=f"{value} area")
-            plt.plot(df_params.index, FLOAT_DF, color='blue', label=f'{value} Line', marker='o')
-            plt.title(f'{value} Over Time')
+            
+            # Plotting
+            plt.figure(figsize=(12, 6))
+            plt.fill_between(df['RTC'], FLOAT_DF, color='skyblue', alpha=0.4, label=f"{unit_map.get(value, value)} area")
+            plt.plot(df['RTC'], FLOAT_DF, color='blue', label=f'{unit_map.get(value, value)} Line', marker='', linewidth=1)
+            plt.title(f'{unit_map.get(value, value)} Trends Over Time')
             plt.xlabel('Time')
             plt.ylabel(f'{value}')
             plt.legend()
-            plt.grid(True)
+            plt.grid(True, alpha=0.3)
+            plt.gcf().autofmt_xdate()
+
             area_data = io.BytesIO()        
-            plt.savefig(area_data, format="png")
+            plt.savefig(area_data, format="png", bbox_inches='tight', dpi=100)
             area_data.seek(0)
             image_base64 = base64.b64encode(area_data.read()).decode('utf-8')
-            plt.clf()
-            return [image_base64,table_html,table_csv]
+            plt.close()
+            
+            return [image_base64, table_html, table_csv, raw_data_list]
         else:
             return False
 
