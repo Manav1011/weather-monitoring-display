@@ -1,0 +1,312 @@
+Watching for file changes with StatReloader
+System check identified some issues:
+
+WARNINGS:
+controller.Panel.programs: (fields.W340) null has no effect on ManyToManyField.
+controller.Programs.elements: (fields.W340) null has no effect on ManyToManyField.
+
+System check identified 2 issues (0 silenced).
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [100.118.37.63:38730]
+WebSocket CONNECT /ws/serial_communication/consumer/ [100.118.37.63:38730]
+Watching for file changes with StatReloader
+System check identified some issues:
+
+WARNINGS:
+controller.Panel.programs: (fields.W340) null has no effect on ManyToManyField.
+controller.Programs.elements: (fields.W340) null has no effect on ManyToManyField.
+
+System check identified 2 issues (0 silenced).
+HTTP GET / 200 [0.01, 100.118.37.63:43072]
+HTTP GET /static/assets/index-BHL9PcB3.css 200 [0.01, 100.118.37.63:43078]
+HTTP GET /static/assets/index-w4BZbpw_.js 200 [0.02, 100.118.37.63:43072]
+HTTP GET /auth/check-session/ 200 [0.01, 100.118.37.63:43072]
+HTTP GET /auth/station/ 200 [0.01, 100.118.37.63:43072]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [100.118.37.63:43082]
+WebSocket CONNECT /ws/serial_communication/consumer/ [100.118.37.63:43082]
+Watching for file changes with StatReloader
+System check identified some issues:
+
+WARNINGS:
+controller.Panel.programs: (fields.W340) null has no effect on ManyToManyField.
+controller.Programs.elements: (fields.W340) null has no effect on ManyToManyField.
+
+System check identified 2 issues (0 silenced).
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [100.118.37.63:40124]
+WebSocket CONNECT /ws/serial_communication/consumer/ [100.118.37.63:40124]
+Performing system checks...
+
+March 08, 2026 - 12:20:50
+Django version 4.2.6, using settings 'dynamic_led_display_prod.settings'
+Starting ASGI/Daphne version 4.0.0 development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+{'rs485': {'consumer': <serial_comm.consumers.SerialConsumer object at 0x726e5fbd75b0>}, 'rs232': {}}
+Watching for file changes with StatReloader
+System check identified some issues:
+
+WARNINGS:
+controller.Panel.programs: (fields.W340) null has no effect on ManyToManyField.
+controller.Programs.elements: (fields.W340) null has no effect on ManyToManyField.
+
+System check identified 2 issues (0 silenced).
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [100.118.37.63:53728]
+WebSocket CONNECT /ws/serial_communication/consumer/ [100.118.37.63:53728]
+HTTP GET / 200 [0.01, 100.118.37.63:53744]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [100.118.37.63:53728]
+HTTP GET /static/assets/index-BHL9PcB3.css 304 [0.00, 100.118.37.63:53744]
+HTTP GET /static/assets/index-w4BZbpw_.js 304 [0.00, 100.118.37.63:53754]
+HTTP GET /auth/check-session/ 200 [0.01, 100.118.37.63:53754]
+HTTP GET /auth/station/ 200 [0.01, 100.118.37.63:53754]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [100.118.37.63:53762]
+WebSocket CONNECT /ws/serial_communication/consumer/ [100.118.37.63:53762]
+Watching for file changes with StatReloader
+System check identified some issues:
+
+WARNINGS:
+controller.Panel.programs: (fields.W340) null has no effect on ManyToManyField.
+controller.Programs.elements: (fields.W340) null has no effect on ManyToManyField.
+
+System check identified 2 issues (0 silenced).
+WebSocket HANDSHAKING /ws/serial_communication/producer/ [127.0.0.1:52182]
+WebSocket CONNECT /ws/serial_communication/producer/ [127.0.0.1:52182]
+Watching for file changes with StatReloader
+System check identified some issues:
+
+WARNINGS:
+controller.Panel.programs: (fields.W340) null has no effect on ManyToManyField.
+controller.Programs.elements: (fields.W340) null has no effect on ManyToManyField.
+
+System check identified 2 issues (0 silenced).
+WebSocket HANDSHAKING /ws/serial_communication/producer/ [127.0.0.1:54154]
+WebSocket CONNECT /ws/serial_communication/producer/ [127.0.0.1:54154]
+WebSocket HANDSHAKING /ws/serial_communication/producer/ [127.0.0.1:50432]
+WebSocket CONNECT /ws/serial_communication/producer/ [127.0.0.1:50432]
+HTTP GET / 200 [0.01, 127.0.0.1:41340]
+HTTP GET /static/assets/index-BHL9PcB3.css 200 [0.01, 127.0.0.1:41342]
+HTTP GET /static/assets/index-w4BZbpw_.js 200 [0.01, 127.0.0.1:41340]
+HTTP GET /auth/check-session/ 200 [0.00, 127.0.0.1:41340]
+HTTP GET /auth/station/ 200 [0.01, 127.0.0.1:41340]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [127.0.0.1:48956]
+WebSocket CONNECT /ws/serial_communication/consumer/ [127.0.0.1:48956]
+HTTP GET /static/vite.svg 200 [0.01, 127.0.0.1:41340]
+HTTP GET / 200 [0.01, 100.118.37.63:56782]
+HTTP GET /static/assets/index-BHL9PcB3.css 304 [0.00, 100.118.37.63:56784]
+HTTP GET /static/assets/index-w4BZbpw_.js 304 [0.01, 100.118.37.63:56782]
+HTTP GET /auth/check-session/ 200 [0.02, 100.118.37.63:56782]
+HTTP GET /auth/station/ 200 [0.01, 100.118.37.63:56782]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [100.118.37.63:56798]
+WebSocket CONNECT /ws/serial_communication/consumer/ [100.118.37.63:56798]
+HTTP GET / 200 [0.01, 127.0.0.1:41340]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [127.0.0.1:48956]
+HTTP GET /auth/check-session/ 200 [0.01, 127.0.0.1:41340]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [127.0.0.1:44584]
+WebSocket CONNECT /ws/serial_communication/consumer/ [127.0.0.1:44584]
+HTTP GET /auth/station/ 200 [0.01, 127.0.0.1:41340]
+Watching for file changes with StatReloader
+System check identified some issues:
+
+WARNINGS:
+controller.Panel.programs: (fields.W340) null has no effect on ManyToManyField.
+controller.Programs.elements: (fields.W340) null has no effect on ManyToManyField.
+
+System check identified 2 issues (0 silenced).
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [127.0.0.1:44458]
+WebSocket CONNECT /ws/serial_communication/consumer/ [127.0.0.1:44458]
+HTTP GET / 200 [0.01, 100.118.37.63:48788]
+HTTP GET /auth/check-session/ 200 [0.01, 100.118.37.63:48788]
+HTTP GET /auth/station/ 200 [0.01, 100.118.37.63:48788]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [100.118.37.63:48816]
+WebSocket CONNECT /ws/serial_communication/consumer/ [100.118.37.63:48816]
+HTTP GET / 200 [0.01, 100.118.37.63:48788]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [100.118.37.63:48816]
+HTTP GET /auth/check-session/ 200 [0.01, 100.118.37.63:48788]
+HTTP GET /auth/station/ 200 [0.01, 100.118.37.63:48788]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [100.118.37.63:34532]
+WebSocket CONNECT /ws/serial_communication/consumer/ [100.118.37.63:34532]
+HTTP GET / 200 [0.01, 100.118.37.63:48788]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [100.118.37.63:34532]
+HTTP GET /auth/check-session/ 200 [0.01, 100.118.37.63:48788]
+HTTP GET /auth/station/ 200 [0.01, 100.118.37.63:48788]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [100.118.37.63:45616]
+WebSocket CONNECT /ws/serial_communication/consumer/ [100.118.37.63:45616]
+Watching for file changes with StatReloader
+System check identified some issues:
+
+WARNINGS:
+controller.Panel.programs: (fields.W340) null has no effect on ManyToManyField.
+controller.Programs.elements: (fields.W340) null has no effect on ManyToManyField.
+
+System check identified 2 issues (0 silenced).
+HTTP GET / 200 [0.01, 192.168.1.6:50036]
+HTTP GET /static/assets/index-BHL9PcB3.css 304 [0.01, 192.168.1.6:50037]
+HTTP GET /static/assets/index-w4BZbpw_.js 304 [0.01, 192.168.1.6:50036]
+HTTP GET /static/vite.svg 200 [0.01, 192.168.1.6:50037]
+HTTP GET /auth/check-session/ 200 [0.02, 192.168.1.6:50036]
+HTTP GET /auth/station/ 200 [0.01, 192.168.1.6:50037]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [192.168.1.6:50038]
+WebSocket CONNECT /ws/serial_communication/consumer/ [192.168.1.6:50038]
+WebSocket HANDSHAKING /ws/serial_communication/producer/ [127.0.0.1:40846]
+WebSocket CONNECT /ws/serial_communication/producer/ [127.0.0.1:40846]
+HTTP GET / 200 [0.01, 127.0.0.1:41730]
+HTTP GET /static/assets/index-w4BZbpw_.js 304 [0.01, 127.0.0.1:41730]
+HTTP GET /static/assets/index-BHL9PcB3.css 304 [0.01, 127.0.0.1:41746]
+HTTP GET /static/vite.svg 304 [0.00, 127.0.0.1:41730]
+HTTP GET /auth/check-session/ 200 [0.01, 127.0.0.1:41746]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [127.0.0.1:41750]
+WebSocket CONNECT /ws/serial_communication/consumer/ [127.0.0.1:41750]
+HTTP GET /auth/station/ 200 [0.00, 127.0.0.1:41746]
+HTTP GET /auth/station/ 200 [0.01, 192.168.1.6:50058]
+HTTP GET /auth/station/ 200 [0.01, 192.168.1.6:50058]
+HTTP GET /auth/station/ 200 [0.01, 192.168.1.6:50058]
+HTTP GET /auth/station/ 200 [0.00, 192.168.1.6:50058]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [192.168.1.6:50038]
+HTTP GET / 200 [0.01, 192.168.1.6:50247]
+HTTP GET /static/assets/index-w4BZbpw_.js 304 [0.00, 192.168.1.6:50247]
+HTTP GET /static/assets/index-BHL9PcB3.css 304 [0.00, 192.168.1.6:50249]
+HTTP GET /auth/check-session/ 200 [0.01, 192.168.1.6:50249]
+HTTP GET /auth/station/ 200 [0.02, 192.168.1.6:50249]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [192.168.1.6:50250]
+WebSocket CONNECT /ws/serial_communication/consumer/ [192.168.1.6:50250]
+HTTP GET / 200 [0.01, 192.168.1.6:50285]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [192.168.1.6:50250]
+HTTP GET /static/vite.svg 304 [0.00, 192.168.1.6:50284]
+HTTP GET /auth/check-session/ 200 [0.02, 192.168.1.6:50285]
+HTTP GET /auth/station/ 200 [0.01, 192.168.1.6:50285]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [192.168.1.6:50286]
+WebSocket CONNECT /ws/serial_communication/consumer/ [192.168.1.6:50286]
+HTTP GET / 200 [0.01, 192.168.1.6:50285]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [192.168.1.6:50286]
+HTTP GET /auth/check-session/ 200 [0.01, 192.168.1.6:50285]
+HTTP GET /auth/station/ 200 [0.01, 192.168.1.6:50285]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [192.168.1.6:50287]
+WebSocket CONNECT /ws/serial_communication/consumer/ [192.168.1.6:50287]
+HTTP GET / 200 [0.01, 127.0.0.1:45246]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [127.0.0.1:41750]
+HTTP GET /static/assets/index-w4BZbpw_.js 304 [0.00, 127.0.0.1:45246]
+HTTP GET /static/assets/index-BHL9PcB3.css 304 [0.00, 127.0.0.1:45260]
+HTTP GET /static/vite.svg 304 [0.00, 127.0.0.1:45246]
+HTTP GET /auth/check-session/ 200 [0.01, 127.0.0.1:45260]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [127.0.0.1:45276]
+WebSocket CONNECT /ws/serial_communication/consumer/ [127.0.0.1:45276]
+HTTP GET /auth/station/ 200 [0.00, 127.0.0.1:45260]
+HTTP GET / 200 [0.01, 127.0.0.1:45260]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [127.0.0.1:45276]
+HTTP GET /auth/check-session/ 200 [0.01, 127.0.0.1:45260]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [127.0.0.1:45288]
+WebSocket CONNECT /ws/serial_communication/consumer/ [127.0.0.1:45288]
+HTTP GET /auth/station/ 200 [0.00, 127.0.0.1:45260]
+HTTP GET / 200 [0.01, 127.0.0.1:45260]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [127.0.0.1:45288]
+HTTP GET /auth/check-session/ 200 [0.01, 127.0.0.1:45260]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [127.0.0.1:45302]
+WebSocket CONNECT /ws/serial_communication/consumer/ [127.0.0.1:45302]
+HTTP GET /auth/station/ 200 [0.01, 127.0.0.1:45260]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [127.0.0.1:45302]
+WebSocket DISCONNECT /ws/serial_communication/producer/ [127.0.0.1:40846]
+Watching for file changes with StatReloader
+System check identified some issues:
+
+WARNINGS:
+controller.Panel.programs: (fields.W340) null has no effect on ManyToManyField.
+controller.Programs.elements: (fields.W340) null has no effect on ManyToManyField.
+
+System check identified 2 issues (0 silenced).
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [192.168.1.6:50293]
+WebSocket CONNECT /ws/serial_communication/consumer/ [192.168.1.6:50293]
+WebSocket HANDSHAKING /ws/serial_communication/producer/ [127.0.0.1:49888]
+WebSocket CONNECT /ws/serial_communication/producer/ [127.0.0.1:49888]
+HTTP GET / 200 [0.00, 127.0.0.1:45922]
+HTTP GET /auth/check-session/ 200 [0.00, 127.0.0.1:45922]
+HTTP GET /auth/station/ 200 [0.00, 127.0.0.1:45922]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [127.0.0.1:45924]
+WebSocket CONNECT /ws/serial_communication/consumer/ [127.0.0.1:45924]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [192.168.1.6:50293]
+HTTP GET / 200 [0.00, 192.168.1.6:49849]
+HTTP GET /static/assets/index-w4BZbpw_.js 200 [0.01, 192.168.1.6:49849]
+HTTP GET /static/assets/index-BHL9PcB3.css 200 [0.00, 192.168.1.6:49849]
+HTTP GET /auth/check-session/ 200 [0.01, 192.168.1.6:49849]
+HTTP GET /auth/station/ 200 [0.01, 192.168.1.6:49849]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [192.168.1.6:49852]
+WebSocket CONNECT /ws/serial_communication/consumer/ [192.168.1.6:49852]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [192.168.1.6:49852]
+HTTP GET / 200 [0.01, 192.168.1.6:50312]
+HTTP GET /static/assets/index-w4BZbpw_.js 304 [0.00, 192.168.1.6:50312]
+HTTP GET /static/assets/index-BHL9PcB3.css 304 [0.00, 192.168.1.6:50313]
+HTTP GET /auth/check-session/ 200 [0.01, 192.168.1.6:50313]
+HTTP GET /auth/station/ 200 [0.01, 192.168.1.6:50313]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [192.168.1.6:50314]
+WebSocket CONNECT /ws/serial_communication/consumer/ [192.168.1.6:50314]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [192.168.1.6:50314]
+HTTP GET / 200 [0.01, 192.168.1.6:50501]
+HTTP GET /auth/check-session/ 200 [0.01, 192.168.1.6:50501]
+HTTP GET /auth/station/ 200 [0.01, 192.168.1.6:50501]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [192.168.1.6:50502]
+WebSocket CONNECT /ws/serial_communication/consumer/ [192.168.1.6:50502]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [192.168.1.6:50502]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [192.168.1.6:50941]
+WebSocket CONNECT /ws/serial_communication/consumer/ [192.168.1.6:50941]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [192.168.1.6:50941]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [192.168.1.6:51032]
+WebSocket CONNECT /ws/serial_communication/consumer/ [192.168.1.6:51032]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [192.168.1.6:51032]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [192.168.1.6:51084]
+WebSocket CONNECT /ws/serial_communication/consumer/ [192.168.1.6:51084]
+WebSocket DISCONNECT /ws/serial_communication/producer/ [127.0.0.1:49888]
+WebSocket HANDSHAKING /ws/serial_communication/producer/ [127.0.0.1:56648]
+WebSocket CONNECT /ws/serial_communication/producer/ [127.0.0.1:56648]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [127.0.0.1:45924]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [127.0.0.1:46212]
+WebSocket CONNECT /ws/serial_communication/consumer/ [127.0.0.1:46212]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [192.168.1.6:51084]
+HTTP GET / 200 [0.01, 192.168.1.6:52253]
+HTTP GET /static/assets/index-w4BZbpw_.js 304 [0.00, 192.168.1.6:52253]
+HTTP GET /static/assets/index-BHL9PcB3.css 304 [0.00, 192.168.1.6:52254]
+HTTP GET /auth/check-session/ 200 [0.01, 192.168.1.6:52254]
+HTTP GET /auth/station/ 200 [0.01, 192.168.1.6:52254]
+HTTP GET / 200 [0.01, 192.168.1.6:52254]
+HTTP GET /auth/check-session/ 200 [0.01, 192.168.1.6:52254]
+HTTP GET /auth/station/ 200 [0.01, 192.168.1.6:52254]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [192.168.1.6:52258]
+WebSocket CONNECT /ws/serial_communication/consumer/ [192.168.1.6:52258]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [192.168.1.6:52258]
+HTTP GET / 200 [0.01, 192.168.1.6:52824]
+HTTP GET /static/assets/index-w4BZbpw_.js 304 [0.00, 192.168.1.6:52824]
+HTTP GET /static/assets/index-BHL9PcB3.css 304 [0.00, 192.168.1.6:52825]
+HTTP GET /auth/check-session/ 200 [0.01, 192.168.1.6:52825]
+HTTP GET /auth/station/ 200 [0.01, 192.168.1.6:52825]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [192.168.1.6:52826]
+WebSocket CONNECT /ws/serial_communication/consumer/ [192.168.1.6:52826]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [192.168.1.6:52826]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [192.168.1.6:52829]
+WebSocket CONNECT /ws/serial_communication/consumer/ [192.168.1.6:52829]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [192.168.1.6:52829]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [192.168.1.6:53240]
+WebSocket CONNECT /ws/serial_communication/consumer/ [192.168.1.6:53240]
+WebSocket DISCONNECT /ws/serial_communication/producer/ [127.0.0.1:56648]
+WebSocket HANDSHAKING /ws/serial_communication/producer/ [127.0.0.1:34872]
+WebSocket CONNECT /ws/serial_communication/producer/ [127.0.0.1:34872]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [127.0.0.1:46212]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [127.0.0.1:51594]
+WebSocket CONNECT /ws/serial_communication/consumer/ [127.0.0.1:51594]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [192.168.1.6:53240]
+HTTP GET / 200 [0.01, 192.168.1.6:54981]
+HTTP GET /static/assets/index-w4BZbpw_.js 304 [0.00, 192.168.1.6:54981]
+HTTP GET /static/assets/index-BHL9PcB3.css 304 [0.00, 192.168.1.6:54982]
+HTTP GET /auth/check-session/ 200 [0.03, 192.168.1.6:54982]
+HTTP GET /auth/station/ 200 [0.02, 192.168.1.6:54982]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [192.168.1.6:54984]
+WebSocket CONNECT /ws/serial_communication/consumer/ [192.168.1.6:54984]
+HTTP GET /auth/station/ 200 [0.01, 192.168.1.6:54987]
+HTTP GET /auth/station/ 200 [0.01, 192.168.1.6:54987]
+HTTP GET /auth/station/ 200 [0.01, 192.168.1.6:54997]
+HTTP GET /auth/station/ 200 [0.01, 192.168.1.6:54997]
+HTTP GET /auth/station/ 200 [0.03, 192.168.1.6:55141]
+HTTP GET /auth/station/ 200 [0.01, 192.168.1.6:55141]
+HTTP GET /auth/station/ 200 [0.01, 192.168.1.6:55147]
+HTTP GET /auth/station/ 200 [0.01, 192.168.1.6:55147]
+WebSocket DISCONNECT /ws/serial_communication/producer/ [127.0.0.1:34872]
+WebSocket HANDSHAKING /ws/serial_communication/producer/ [127.0.0.1:55142]
+WebSocket CONNECT /ws/serial_communication/producer/ [127.0.0.1:55142]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [127.0.0.1:51594]
+WebSocket HANDSHAKING /ws/serial_communication/consumer/ [127.0.0.1:49840]
+WebSocket CONNECT /ws/serial_communication/consumer/ [127.0.0.1:49840]
+WebSocket DISCONNECT /ws/serial_communication/consumer/ [192.168.1.6:54984]
